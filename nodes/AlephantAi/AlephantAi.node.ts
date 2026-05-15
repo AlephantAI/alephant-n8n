@@ -104,14 +104,15 @@ export function parseMessagesInput(value: unknown): ChatMessage[] {
 
 export class AlephantAi implements INodeType {
   description: INodeTypeDescription = {
-    displayName: 'Alephant AI',
+    displayName: 'Alephant Cost Control',
     name: 'alephantAi',
     icon: 'file:alephant.svg',
     group: ['transform'],
     version: 1,
     subtitle: '={{$parameter["operation"]}}',
-    description: 'Call Alephant AI Gateway with a Virtual Key',
-    defaults: { name: 'Alephant AI' },
+    description:
+      'Alephant Cost Control helps route AI requests through Alephant AI Gateway to track token usage, enforce budget limits, prevent runaway agent spend, and attribute AI costs by key, team, model, provider, or session.',
+    defaults: { name: 'Alephant Cost Control' },
     inputs: [NodeConnectionTypes.Main],
     outputs: [NodeConnectionTypes.Main],
     credentials: [{ name: 'alephantVirtualKeyApi', required: true }],

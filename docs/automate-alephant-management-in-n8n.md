@@ -1,9 +1,9 @@
-# Automate Alephant Management in n8n
+# Automate Alephant Node in n8n
 
 1. Create an `Alephant Manager` credential.
 2. Fill `Personal Access Token` and `Workspace ID`.
 3. Leave `SaaS Base URL` and `Analytics Base URL` empty for production.
-4. Add the `Alephant Management` node.
+4. Add the `Alephant Node` node.
 5. Choose a resource: `Agent`, `Virtual Key`, `Models`, or `Workspace Usage`.
 6. Choose an operation and execute.
 

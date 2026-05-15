@@ -1,5 +1,5 @@
 {
-  "name": "Alephant AI + Usage + Management Examples",
+  "name": "Alephant Cost Control + AI Analytics + Node Examples",
   "nodes": [
     {
       "parameters": {},
@@ -23,7 +23,7 @@
         "additionalOptions": "{}"
       },
       "id": "5df84560-f190-4e76-9197-f067824f81ca",
-      "name": "Alephant AI - Chat Completion",
+      "name": "Alephant Cost Control - Chat Completion",
       "type": "CUSTOM.alephantAi",
       "typeVersion": 1,
       "position": [
@@ -37,7 +37,7 @@
         "period": "7d"
       },
       "id": "f75b67bc-b2e0-4bc8-b7f3-2c776c8f4b35",
-      "name": "Alephant Usage - 7 Day Summary",
+      "name": "Alephant AI Analytics - 7 Day Summary",
       "type": "CUSTOM.alephantUsage",
       "typeVersion": 1,
       "position": [
@@ -51,7 +51,7 @@
         "modelsOperation": "list"
       },
       "id": "1f56b904-e58d-4e25-9263-b663f42f898d",
-      "name": "Alephant Management - List Models",
+      "name": "Alephant Node - List Models",
       "type": "CUSTOM.alephantManagement",
       "typeVersion": 1,
       "position": [
@@ -61,7 +61,7 @@
     },
     {
       "parameters": {
-        "content": "After importing, open each Alephant node and choose credentials:\n\n- Alephant AI and Alephant Usage use `Alephant Virtual Key`.\n- Alephant Management uses `Alephant Manager`.\n\nThen click `Test workflow` or execute one node at a time.",
+        "content": "After importing, open each Alephant node and choose credentials:\n\n- Alephant Cost Control and Alephant AI Analytics use `Alephant Virtual Key`.\n- Alephant Node uses `Alephant Manager`.\n\nThen click `Test workflow` or execute one node at a time.",
         "height": 220,
         "width": 360,
         "color": 4
@@ -82,17 +82,17 @@
       "main": [
         [
           {
-            "node": "Alephant AI - Chat Completion",
+            "node": "Alephant Cost Control - Chat Completion",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Alephant Usage - 7 Day Summary",
+            "node": "Alephant AI Analytics - 7 Day Summary",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Alephant Management - List Models",
+            "node": "Alephant Node - List Models",
             "type": "main",
             "index": 0
           }

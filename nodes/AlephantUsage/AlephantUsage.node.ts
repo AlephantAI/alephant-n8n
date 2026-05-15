@@ -184,14 +184,15 @@ export function buildUsageRequest(
 
 export class AlephantUsage implements INodeType {
   description: INodeTypeDescription = {
-    displayName: 'Alephant Usage',
+    displayName: 'Alephant AI Analytics',
     name: 'alephantUsage',
     icon: 'file:alephant.svg',
     group: ['transform'],
     version: 1,
     subtitle: '={{$parameter["operation"]}}',
-    description: 'Inspect Alephant Virtual Key usage and cost analytics',
-    defaults: { name: 'Alephant Usage' },
+    description:
+      'Alephant AI Analytics provides visibility into AI usage, cost, latency, model/provider performance, agent sessions, and request-level traces across your organization. It helps teams understand spend patterns, diagnose issues, and optimize AI operations from one unified dashboard.',
+    defaults: { name: 'Alephant AI Analytics' },
     inputs: [NodeConnectionTypes.Main],
     outputs: [NodeConnectionTypes.Main],
     credentials: [{ name: 'alephantVirtualKeyApi', required: true }],

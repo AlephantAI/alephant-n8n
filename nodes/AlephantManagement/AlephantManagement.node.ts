@@ -296,14 +296,15 @@ function getManagementRequestParams(
 
 export class AlephantManagement implements INodeType {
   description: INodeTypeDescription = {
-    displayName: 'Alephant Management',
+    displayName: 'Alephant Node',
     name: 'alephantManagement',
     icon: 'file:alephant.svg',
     group: ['transform'],
     version: 1,
     subtitle: '={{$parameter["resource"]}}',
-    description: 'Manage Alephant agents, virtual keys, models, and workspace analytics',
-    defaults: { name: 'Alephant Management' },
+    description:
+      'Connect n8n workflows to Alephant AI Gateway to route model requests, manage AI traffic, track usage, apply governance policies, and integrate cost-aware, observable AI operations into your automation flows.',
+    defaults: { name: 'Alephant Node' },
     inputs: [NodeConnectionTypes.Main],
     outputs: [NodeConnectionTypes.Main],
     credentials: [{ name: 'alephantManagerApi', required: true }],

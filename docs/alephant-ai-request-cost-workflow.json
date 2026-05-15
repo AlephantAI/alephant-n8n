@@ -1,5 +1,5 @@
 {
-  "name": "Alephant AI Request Cost Tracking",
+  "name": "Alephant Cost Control Request Cost Tracking",
   "nodes": [
     {
       "parameters": {},
@@ -52,7 +52,7 @@
         "additionalOptions": "{}"
       },
       "id": "5df84560-f190-4e76-9197-f067824f81ca",
-      "name": "Alephant AI - Chat Completion",
+      "name": "Alephant Cost Control - Chat Completion",
       "type": "CUSTOM.alephantAi",
       "typeVersion": 1,
       "position": [
@@ -83,7 +83,7 @@
         "workspaceId": "={{$json.workspaceId || \"\"}}"
       },
       "id": "53ab1e42-b46f-46fe-8f6f-d305c19d2169",
-      "name": "Alephant Usage - Request Log Detail",
+      "name": "Alephant AI Analytics - Request Log Detail",
       "type": "CUSTOM.alephantUsage",
       "typeVersion": 1,
       "position": [
@@ -93,7 +93,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const request = $items('Build AI Request')[0]?.json ?? {};\nconst ai = $items('Alephant AI - Chat Completion')[0]?.json ?? {};\nconst log = $input.first().json ?? {};\n\nconst firstDefined = (...values) => values.find((value) => value !== undefined && value !== null && value !== '');\nconst nested = (...paths) => {\n  for (const path of paths) {\n    const value = path.split('.').reduce((current, key) => current?.[key], log);\n    if (value !== undefined && value !== null && value !== '') return value;\n  }\n  return undefined;\n};\n\nconst cost = firstDefined(\n  nested('cost'),\n  nested('totalCost'),\n  nested('total_cost'),\n  nested('amount'),\n  nested('data.cost'),\n  nested('data.totalCost'),\n  nested('data.total_cost'),\n  nested('billing.cost'),\n  nested('billing.totalCost'),\n);\n\nconst currency = firstDefined(\n  nested('currency'),\n  nested('data.currency'),\n  nested('billing.currency'),\n  'USD',\n);\n\nreturn [\n  {\n    json: {\n      requestLogId: ai.requestLogId || ai.requestId,\n      model: ai.model || request.model,\n      prompt: request.prompt,\n      responseText: ai.text,\n      tokenUsageFromAiResponse: ai.usage,\n      cost,\n      currency,\n      requestLog: log,\n    },\n  },\n];"
+        "jsCode": "const request = $items('Build AI Request')[0]?.json ?? {};\nconst ai = $items('Alephant Cost Control - Chat Completion')[0]?.json ?? {};\nconst log = $input.first().json ?? {};\n\nconst firstDefined = (...values) => values.find((value) => value !== undefined && value !== null && value !== '');\nconst nested = (...paths) => {\n  for (const path of paths) {\n    const value = path.split('.').reduce((current, key) => current?.[key], log);\n    if (value !== undefined && value !== null && value !== '') return value;\n  }\n  return undefined;\n};\n\nconst cost = firstDefined(\n  nested('cost'),\n  nested('totalCost'),\n  nested('total_cost'),\n  nested('amount'),\n  nested('data.cost'),\n  nested('data.totalCost'),\n  nested('data.total_cost'),\n  nested('billing.cost'),\n  nested('billing.totalCost'),\n);\n\nconst currency = firstDefined(\n  nested('currency'),\n  nested('data.currency'),\n  nested('billing.currency'),\n  'USD',\n);\n\nreturn [\n  {\n    json: {\n      requestLogId: ai.requestLogId || ai.requestId,\n      model: ai.model || request.model,\n      prompt: request.prompt,\n      responseText: ai.text,\n      tokenUsageFromAiResponse: ai.usage,\n      cost,\n      currency,\n      requestLog: log,\n    },\n  },\n];"
       },
       "id": "ee98c7a7-24c4-4d8d-9863-bf02400f6ca4",
       "name": "Summarize Cost",
@@ -138,14 +138,14 @@
       "main": [
         [
           {
-            "node": "Alephant AI - Chat Completion",
+            "node": "Alephant Cost Control - Chat Completion",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Alephant AI - Chat Completion": {
+    "Alephant Cost Control - Chat Completion": {
       "main": [
         [
           {
@@ -160,14 +160,14 @@
       "main": [
         [
           {
-            "node": "Alephant Usage - Request Log Detail",
+            "node": "Alephant AI Analytics - Request Log Detail",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Alephant Usage - Request Log Detail": {
+    "Alephant AI Analytics - Request Log Detail": {
       "main": [
         [
           {

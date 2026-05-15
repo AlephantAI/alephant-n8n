@@ -1,7 +1,7 @@
 {
   "name": "@alephantai/n8n-nodes-alephant",
   "version": "0.1.5",
-  "description": "n8n nodes for Alephant AI Gateway, Virtual Key usage, and management automation",
+  "description": "n8n nodes for Alephant AI Gateway cost control, analytics, and workspace automation",
   "license": "MIT",
   "homepage": "https://alephant.ai",
   "author": {

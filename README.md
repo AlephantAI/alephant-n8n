@@ -1,20 +1,20 @@
 # @alephantai/n8n-nodes-alephant
 
-n8n community nodes for Alephant BYO-KEY.
+n8n community nodes for Alephant AI Gateway, cost control, analytics, and workspace automation.
 
 ## Nodes
 
-### Alephant AI
+### Alephant Cost Control
 
-Run Alephant gateway AI requests from n8n workflows. Use this node for chat completion workflows with a virtual key.
+Alephant Cost Control helps route AI requests through Alephant AI Gateway to track token usage, enforce budget limits, prevent runaway agent spend, and attribute AI costs by key, team, model, provider, or session.
 
-### Alephant Usage
+### Alephant AI Analytics
 
-Check virtual key budget status, usage summaries, daily costs, cost by model, and recent requests.
+Alephant AI Analytics provides visibility into AI usage, cost, latency, model/provider performance, agent sessions, and request-level traces across your organization.
 
-### Alephant Management
+### Alephant Node
 
-Automate Alephant workspace administration. Supported operations include:
+Connect n8n workflows to Alephant AI Gateway to route model requests, manage AI traffic, track usage, apply governance policies, and integrate cost-aware, observable AI operations into your automation flows. Supported operations include:
 
 - Agent list and create
 - Virtual key list, create, and revoke
