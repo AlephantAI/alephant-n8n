@@ -369,7 +369,6 @@ describe('Alephant Usage node', () => {
           requestLogId: '79a583b6-1fe1-41bf-a53b-c23b469329b1',
           workspaceId: '',
           requestLogMaxAttempts: 3,
-          requestLogRetryDelaySeconds: 0,
           period: '7d',
           limit: 50,
           offset: 0,

@@ -105,16 +105,6 @@ function normalizeAttemptCount(value: unknown): number {
     : 6;
 }
 
-function normalizeDelayMs(value: unknown): number {
-  return typeof value === 'number' && Number.isFinite(value) && value >= 0
-    ? Math.floor(value * 1000)
-    : 1000;
-}
-
-function sleep(ms: number): Promise<void> {
-  return ms > 0 ? new Promise((resolve) => setTimeout(resolve, ms)) : Promise.resolve();
-}
-
 function isRequestLogNotFoundError(error: unknown): boolean {
   const httpCode = normalizeOptionalString(readPath(error, 'httpCode'));
   const status = readPath(error, 'response.status') ?? readPath(error, 'status');
@@ -134,7 +124,6 @@ async function requestWithLogPolling<T>(
   ctx: IExecuteFunctions,
   options: AlephantRequestOptions,
   maxAttempts: number,
-  retryDelayMs: number,
 ): Promise<T> {
   let lastError: unknown;
 
@@ -146,8 +135,6 @@ async function requestWithLogPolling<T>(
       if (attempt >= maxAttempts || !isRequestLogNotFoundError(error)) {
         throw error;
       }
-
-      await sleep(retryDelayMs);
     }
   }
 
@@ -272,16 +259,7 @@ export class AlephantUsage implements INodeType {
         type: 'number',
         default: 6,
         typeOptions: { minValue: 1 },
-        description: 'Maximum number of attempts while waiting for asynchronous request logs',
-        displayOptions: { show: { operation: ['requestLogDetail'] } },
-      },
-      {
-        displayName: 'Request Log Retry Delay Seconds',
-        name: 'requestLogRetryDelaySeconds',
-        type: 'number',
-        default: 1,
-        typeOptions: { minValue: 0 },
-        description: 'Delay between request log lookup attempts',
+        description: 'Maximum number of consecutive request log lookup attempts',
         displayOptions: { show: { operation: ['requestLogDetail'] } },
       },
     ],
@@ -357,9 +335,6 @@ export class AlephantUsage implements INodeType {
               requestOptions,
               normalizeAttemptCount(
                 this.getNodeParameter('requestLogMaxAttempts', itemIndex, 6),
-              ),
-              normalizeDelayMs(
-                this.getNodeParameter('requestLogRetryDelaySeconds', itemIndex, 1),
               ),
             )
           : await alephantRequest<IDataObject>(this, requestOptions);
