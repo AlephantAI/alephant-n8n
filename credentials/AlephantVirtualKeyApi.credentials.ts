@@ -1,4 +1,4 @@
-import type { ICredentialType, INodeProperties } from 'n8n-workflow';
+import type { ICredentialTestRequest, ICredentialType, INodeProperties } from 'n8n-workflow';
 import {
   DEFAULT_ANALYTICS_BASE_URL,
   DEFAULT_GATEWAY_BASE_URL,
@@ -9,6 +9,15 @@ export class AlephantVirtualKeyApi implements ICredentialType {
   name = 'alephantVirtualKeyApi';
   displayName = 'Alephant Virtual Key';
   documentationUrl = 'https://docs.alephant.ai/integrations/n8n';
+  test: ICredentialTestRequest = {
+    request: {
+      baseURL: '={{$credentials.gatewayBaseUrl}}',
+      url: '/models',
+      headers: {
+        Authorization: '=Bearer {{$credentials.virtualKey}}',
+      },
+    },
+  };
 
   properties: INodeProperties[] = [
     {

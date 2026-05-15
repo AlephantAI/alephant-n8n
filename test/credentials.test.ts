@@ -78,6 +78,15 @@ describe('credential metadata', () => {
       required: false,
       default: '',
     });
+    expect(credential.test).toMatchObject({
+      request: {
+        baseURL: '={{$credentials.gatewayBaseUrl}}',
+        url: '/models',
+        headers: {
+          Authorization: '=Bearer {{$credentials.virtualKey}}',
+        },
+      },
+    });
   });
 
   it('defines manager credential field metadata', () => {
@@ -101,6 +110,16 @@ describe('credential metadata', () => {
     expect(analyticsBaseUrl).toMatchObject({
       required: false,
       default: DEFAULT_ANALYTICS_BASE_URL,
+    });
+    expect(credential.test).toMatchObject({
+      request: {
+        baseURL: '={{$credentials.saasBaseUrl}}',
+        url: '/api/v1/models',
+        headers: {
+          Authorization: '=Bearer {{$credentials.pat}}',
+          'X-Workspace-Id': '={{$credentials.workspaceId}}',
+        },
+      },
     });
   });
 });

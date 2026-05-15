@@ -1,10 +1,20 @@
-import type { ICredentialType, INodeProperties } from 'n8n-workflow';
+import type { ICredentialTestRequest, ICredentialType, INodeProperties } from 'n8n-workflow';
 import { DEFAULT_ANALYTICS_BASE_URL, DEFAULT_SAAS_BASE_URL } from '../shared/constants';
 
 export class AlephantManagerApi implements ICredentialType {
   name = 'alephantManagerApi';
   displayName = 'Alephant Manager';
   documentationUrl = 'https://docs.alephant.ai/integrations/n8n';
+  test: ICredentialTestRequest = {
+    request: {
+      baseURL: '={{$credentials.saasBaseUrl}}',
+      url: '/api/v1/models',
+      headers: {
+        Authorization: '=Bearer {{$credentials.pat}}',
+        'X-Workspace-Id': '={{$credentials.workspaceId}}',
+      },
+    },
+  };
 
   properties: INodeProperties[] = [
     {
