@@ -1,11 +1,13 @@
 {
   "name": "@alephantai/n8n-nodes-alephant",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "n8n nodes for Alephant AI Gateway cost control, analytics, and workspace automation",
   "license": "MIT",
   "homepage": "https://alephant.ai",
   "author": {
-    "name": "Alephant"
+    "name": "Alephant",
+    "email": "cgwang@alephant.io",
+    "url": "https://alephant.ai"
   },
   "repository": {
     "type": "git",
