@@ -49,6 +49,9 @@
       "dist/nodes/AlephantManagement/AlephantManagement.node.js"
     ]
   },
+  "peerDependencies": {
+    "n8n-workflow": "^2.16.0"
+  },
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/node": "^20.12.12",

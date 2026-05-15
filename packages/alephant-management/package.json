@@ -1,0 +1,54 @@
+{
+  "name": "@alephantai/n8n-nodes-alephant-management",
+  "version": "0.1.0",
+  "description": "n8n node for Alephant workspace management automation",
+  "license": "MIT",
+  "homepage": "https://alephant.ai",
+  "author": {
+    "name": "Alephant",
+    "email": "dev@alephant.io",
+    "url": "https://alephant.ai"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlephantAI/alephant-n8n.git",
+    "directory": "packages/alephant-management"
+  },
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "alephant",
+    "management",
+    "ai",
+    "finops"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node ../../scripts/copy-package-assets.cjs dist AlephantManagement",
+    "lint": "npm --prefix ../.. run lint",
+    "test": "npm --prefix ../.. run test",
+    "prepublishOnly": "npm run lint && npm run test && npm run build"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/AlephantManagerApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/AlephantManagement/AlephantManagement.node.js"
+    ]
+  },
+  "peerDependencies": {
+    "n8n-workflow": "^2.16.0"
+  },
+  "devDependencies": {
+    "n8n-workflow": "^2.16.0",
+    "typescript": "^5.6.3"
+  }
+}

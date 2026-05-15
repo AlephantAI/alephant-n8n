@@ -134,7 +134,7 @@ describe('Alephant Management node', () => {
       },
     ],
     [
-      'models',
+      'model',
       'list',
       {},
       {
@@ -199,8 +199,8 @@ describe('Alephant Management node', () => {
   });
 
   it('rejects unsupported operation combinations', () => {
-    expect(() => buildManagementRequest('models', 'create', {})).toThrow(
-      'Unsupported Alephant Management operation: models.create',
+    expect(() => buildManagementRequest('model', 'create', {})).toThrow(
+      'Unsupported Alephant Management operation: model.create',
     );
   });
 
@@ -364,7 +364,7 @@ describe('Alephant Management node', () => {
     expect(ctx.getNodeParameter).toHaveBeenCalledWith('body', 0, {});
   });
 
-  it('executes imported models workflows when the hidden operation parameter is absent', async () => {
+  it('executes imported model workflows when the hidden operation parameter is absent', async () => {
     const httpRequest = jest.fn().mockResolvedValue({ data: [] });
     const node = new AlephantManagement();
     const ctx = {
@@ -385,7 +385,7 @@ describe('Alephant Management node', () => {
       getNodeParameter: jest.fn((...args: [string, number, unknown?]) => {
         const [name, , fallback] = args;
         const values: Record<string, unknown> = {
-          resource: 'models',
+          resource: 'model',
         };
 
         if (name in values) return values[name];

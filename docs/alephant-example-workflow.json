@@ -24,7 +24,7 @@
       },
       "id": "5df84560-f190-4e76-9197-f067824f81ca",
       "name": "Alephant Cost Control - Chat Completion",
-      "type": "CUSTOM.alephantAi",
+      "type": "@alephantai/n8n-nodes-alephant.alephantAi",
       "typeVersion": 1,
       "position": [
         440,
@@ -38,7 +38,7 @@
       },
       "id": "f75b67bc-b2e0-4bc8-b7f3-2c776c8f4b35",
       "name": "Alephant AI Analytics - 7 Day Summary",
-      "type": "CUSTOM.alephantUsage",
+      "type": "@alephantai/n8n-nodes-alephant.alephantUsage",
       "typeVersion": 1,
       "position": [
         440,
@@ -52,7 +52,7 @@
       },
       "id": "1f56b904-e58d-4e25-9263-b663f42f898d",
       "name": "Alephant Node - List Models",
-      "type": "CUSTOM.alephantManagement",
+      "type": "@alephantai/n8n-nodes-alephant.alephantManagement",
       "typeVersion": 1,
       "position": [
         440,

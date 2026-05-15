@@ -53,7 +53,7 @@
       },
       "id": "5df84560-f190-4e76-9197-f067824f81ca",
       "name": "Alephant Cost Control - Chat Completion",
-      "type": "CUSTOM.alephantAi",
+      "type": "@alephantai/n8n-nodes-alephant.alephantAi",
       "typeVersion": 1,
       "position": [
         620,
@@ -84,7 +84,7 @@
       },
       "id": "53ab1e42-b46f-46fe-8f6f-d305c19d2169",
       "name": "Alephant AI Analytics - Request Log Detail",
-      "type": "CUSTOM.alephantUsage",
+      "type": "@alephantai/n8n-nodes-alephant.alephantUsage",
       "typeVersion": 1,
       "position": [
         1140,

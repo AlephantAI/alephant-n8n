@@ -13,7 +13,7 @@ import { alephantRequest } from '../../shared/http';
 import { parseJsonObjectInput } from '../../shared/json';
 import type { AlephantManagerCredentials } from '../../shared/types';
 
-export type ManagementResource = 'agent' | 'virtualKey' | 'models' | 'workspaceUsage';
+export type ManagementResource = 'agent' | 'virtualKey' | 'model' | 'workspaceUsage';
 export type ManagementOperation =
   | 'list'
   | 'create'
@@ -25,7 +25,7 @@ export type ManagementOperation =
 const DEFAULT_OPERATION_BY_RESOURCE: Record<ManagementResource, ManagementOperation> = {
   agent: 'list',
   virtualKey: 'list',
-  models: 'list',
+  model: 'list',
   workspaceUsage: 'summary',
 };
 
@@ -179,7 +179,7 @@ export function buildManagementRequest(
     };
   }
 
-  if (resource === 'models' && operation === 'list') {
+  if (resource === 'model' && operation === 'list') {
     return {
       method: 'GET',
       host: 'saas',
@@ -320,7 +320,7 @@ export class AlephantManagement implements INodeType {
         default: 'agent',
         options: [
           { name: 'Agent', value: 'agent' },
-          { name: 'Models', value: 'models' },
+          { name: 'Model', value: 'model' },
           { name: 'Virtual Key', value: 'virtualKey' },
           { name: 'Workspace Usage', value: 'workspaceUsage' },
         ],
@@ -352,11 +352,11 @@ export class AlephantManagement implements INodeType {
       },
       {
         displayName: 'Operation',
-        name: 'modelsOperation',
+        name: 'modelOperation',
         type: 'options',
         noDataExpression: true,
         default: 'list',
-        displayOptions: { show: { resource: ['models'] } },
+        displayOptions: { show: { resource: ['model'] } },
         options: [{ name: 'List', value: 'list' }],
       },
       {

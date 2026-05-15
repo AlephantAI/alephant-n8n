@@ -1,9 +1,15 @@
-# Publishes this n8n community node package to npm on version tag pushes.
+# Publishes Alephant n8n community node packages to npm on version tag pushes.
 #
 # n8n Creator Portal verification requires packages to be published from
 # GitHub Actions with an npm provenance statement.
 #
-# One-time npm setup, recommended:
+# Tag formats:
+#   v0.1.11 publishes the root all-in-one package.
+#   alephant-ai-v0.1.0 publishes packages/alephant-ai.
+#   alephant-analytics-v0.1.0 publishes packages/alephant-analytics.
+#   alephant-management-v0.1.0 publishes packages/alephant-management.
+#
+# One-time npm setup per package, recommended:
 #   npmjs.com package settings > Publish access > Trusted Publishers
 #   Add GitHub Actions with:
 #     Repository owner: AlephantAI
@@ -16,8 +22,10 @@ name: Publish
 on:
   push:
     tags:
-      - '*.*.*'
       - 'v*.*.*'
+      - 'alephant-ai-v*.*.*'
+      - 'alephant-analytics-v*.*.*'
+      - 'alephant-management-v*.*.*'
 
 jobs:
   publish:
@@ -49,15 +57,45 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Verify tag matches package version
+      - name: Resolve package from tag
+        id: package
         run: |
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
-          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          case "$GITHUB_REF_NAME" in
+            v*.*.*)
+              PACKAGE_DIR="."
+              TAG_VERSION="${GITHUB_REF_NAME#v}"
+              ;;
+            alephant-ai-v*.*.*)
+              PACKAGE_DIR="packages/alephant-ai"
+              TAG_VERSION="${GITHUB_REF_NAME#alephant-ai-v}"
+              ;;
+            alephant-analytics-v*.*.*)
+              PACKAGE_DIR="packages/alephant-analytics"
+              TAG_VERSION="${GITHUB_REF_NAME#alephant-analytics-v}"
+              ;;
+            alephant-management-v*.*.*)
+              PACKAGE_DIR="packages/alephant-management"
+              TAG_VERSION="${GITHUB_REF_NAME#alephant-management-v}"
+              ;;
+            *)
+              echo "Unsupported publish tag: $GITHUB_REF_NAME"
+              exit 1
+              ;;
+          esac
+
+          PACKAGE_NAME="$(node -p "require('./${PACKAGE_DIR}/package.json').name")"
+          PACKAGE_VERSION="$(node -p "require('./${PACKAGE_DIR}/package.json').version")"
 
           if [ "$TAG_VERSION" != "$PACKAGE_VERSION" ]; then
-            echo "Tag version ($TAG_VERSION) does not match package.json version ($PACKAGE_VERSION)."
+            echo "Tag version ($TAG_VERSION) does not match $PACKAGE_NAME package.json version ($PACKAGE_VERSION)."
             exit 1
           fi
+
+          echo "package-dir=$PACKAGE_DIR" >> "$GITHUB_OUTPUT"
+          echo "package-name=$PACKAGE_NAME" >> "$GITHUB_OUTPUT"
+          echo "package-version=$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
+
+          echo "Publishing $PACKAGE_NAME@$PACKAGE_VERSION from $PACKAGE_DIR"
 
       - name: Lint
         run: npm run lint
@@ -67,6 +105,12 @@ jobs:
 
       - name: Build
         run: npm run build
+        working-directory: ${{ steps.package.outputs.package-dir }}
+
+      - name: Pack dry run
+        run: npm pack --dry-run
+        working-directory: ${{ steps.package.outputs.package-dir }}
 
       - name: Publish
-        run: npm publish --access public
+        run: npm publish --access public --provenance
+        working-directory: ${{ steps.package.outputs.package-dir }}

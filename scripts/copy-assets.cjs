@@ -1,15 +1,11 @@
-const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
 
 const nodes = ['AlephantAi', 'AlephantUsage', 'AlephantManagement'];
+const script = path.join(__dirname, 'copy-package-assets.cjs');
+const targetDistDir = path.join(__dirname, '..', 'dist');
+const result = spawnSync(process.execPath, [script, targetDistDir, ...nodes], { stdio: 'inherit' });
 
-for (const nodeName of nodes) {
-  const targetDir = path.join(__dirname, '..', 'dist', 'nodes', nodeName);
-  fs.mkdirSync(targetDir, { recursive: true });
-
-  for (const filename of ['alephant.svg', 'alephant.light.svg', 'alephant.dark.svg']) {
-    const source = path.join(__dirname, '..', 'nodes', nodeName, filename);
-    const target = path.join(targetDir, filename);
-    fs.copyFileSync(source, target);
-  }
+if (result.status !== 0) {
+  process.exit(result.status ?? 1);
 }
