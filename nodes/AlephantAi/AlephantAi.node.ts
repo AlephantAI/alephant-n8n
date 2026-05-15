@@ -106,7 +106,10 @@ export class AlephantAi implements INodeType {
   description: INodeTypeDescription = {
     displayName: 'Alephant Cost Control',
     name: 'alephantAi',
-    icon: 'file:alephant.svg',
+    icon: {
+      light: 'file:alephant.light.svg',
+      dark: 'file:alephant.dark.svg',
+    },
     group: ['transform'],
     version: 1,
     subtitle: '={{$parameter["operation"]}}',
