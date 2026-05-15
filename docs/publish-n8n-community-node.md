@@ -111,6 +111,62 @@ Use:
 
 For n8n Cloud listing, submit the package through the n8n Creator Portal after the npm release has provenance from GitHub Actions.
 
+## Submit to n8n community listing
+
+Publishing to npm lets self-hosted n8n users install the package manually by package name. To show the nodes in n8n's community listing, submit the published package through the n8n Creator Portal after the GitHub Actions release succeeds.
+
+Before submitting:
+
+```bash
+npm run lint
+npm run test
+npm run build
+npm --cache /private/tmp/npm-cache-codex pack --dry-run
+npx @n8n/scan-community-package @alephantai/n8n-nodes-alephant
+```
+
+The scanner downloads the currently published npm package. If you fixed a scanner issue locally, publish a new patch version first, then rerun the scanner against the package name.
+
+Submit these package details:
+
+```text
+Package name: @alephantai/n8n-nodes-alephant
+Repository: https://github.com/AlephantAI/alephant-n8n
+npm package: https://www.npmjs.com/package/@alephantai/n8n-nodes-alephant
+```
+
+Use the following node descriptions in the Creator Portal. Keep each description attached to its matching node instead of combining all three into one field.
+
+### Alephant Cost Control description
+
+```text
+Route AI requests from n8n through Alephant AI Gateway.
+
+This node sends chat completion requests through Alephant AI Gateway and helps teams track token usage, enforce budget limits, prevent runaway agent spend, and attribute AI costs by key, team, model, provider, or session.
+
+Credential required: Alephant Virtual Key.
+```
+
+### Alephant AI Analytics description
+
+```text
+Analyze AI usage, cost, budgets, and request traces from n8n.
+
+This node retrieves AI usage summaries, budget status, daily costs, cost by model, recent requests, and request log details. It helps teams understand spend patterns, diagnose issues, and build reporting or alerting workflows for AI operations.
+
+Credential required: Alephant Virtual Key.
+```
+
+### Alephant Node description
+
+```text
+Automate Alephant workspace operations from n8n.
+
+This node connects n8n workflows to Alephant workspace APIs for listing models, managing agents and Virtual Keys, and reading workspace-level analytics. It helps teams integrate governed, cost-aware AI operations into automation flows.
+
+Credential required: Alephant Manager credential with a Personal Access Token and Workspace ID.
+```
+
 ## Troubleshooting
 
 ### GitHub Actions shows no runs
