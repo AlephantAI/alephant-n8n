@@ -2,7 +2,12 @@ const tseslint = require('typescript-eslint');
 
 module.exports = [
   {
-    ignores: ['dist/**', 'node_modules/**'],
+    ignores: [
+      '**/dist/**',
+      '**/node_modules/**',
+      'eslint.config.js',
+      'scripts/**/*.cjs',
+    ],
   },
   ...tseslint.configs.recommended,
   {

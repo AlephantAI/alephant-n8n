@@ -6,16 +6,40 @@ const verificationPackages = [
     directory: 'alephant-ai',
     packageName: '@alephantai/n8n-nodes-alephant-ai',
     nodePath: 'dist/nodes/AlephantAi/AlephantAi.node.js',
+    readmeTerms: [
+      'Installation',
+      'Authentication',
+      'Alephant Virtual Key',
+      'https://developers.alephant.io/docs/overview/getting-started/quickstart-guide',
+      'Worked Example: Chat Completion',
+      'Chat Completion',
+    ],
   },
   {
     directory: 'alephant-analytics',
     packageName: '@alephantai/n8n-nodes-alephant-analytics',
     nodePath: 'dist/nodes/AlephantUsage/AlephantUsage.node.js',
+    readmeTerms: [
+      'Installation',
+      'Authentication',
+      'Alephant Virtual Key',
+      'https://developers.alephant.io/docs/overview/getting-started/quickstart-guide',
+      'Example: Usage Summary',
+      'Request Log Detail',
+    ],
   },
   {
     directory: 'alephant-management',
     packageName: '@alephantai/n8n-nodes-alephant-management',
     nodePath: 'dist/nodes/AlephantManagement/AlephantManagement.node.js',
+    readmeTerms: [
+      'Installation',
+      'Authentication',
+      'Alephant Manager',
+      'https://developers.alephant.io/docs/overview/getting-started/quickstart-guide',
+      'Example: List Models',
+      'Personal Access Token',
+    ],
   },
 ];
 
@@ -70,4 +94,19 @@ describe('n8n community scanner compatibility', () => {
     expect(managementNode).toContain("{ name: 'Model', value: 'model' }");
     expect(managementNode).not.toContain("{ name: 'Models', value: 'models' }");
   });
+
+  it.each(verificationPackages)(
+    '$packageName includes installation, authentication, and usage docs',
+    ({ directory, readmeTerms }) => {
+      const readme = fs.readFileSync(
+        path.join(__dirname, '..', 'packages', directory, 'README.md'),
+        'utf8',
+      );
+
+      expect(readme.split('\n').length).toBeGreaterThan(40);
+      for (const term of readmeTerms) {
+        expect(readme).toContain(term);
+      }
+    },
+  );
 });
