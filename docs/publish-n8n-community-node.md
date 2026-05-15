@@ -16,7 +16,7 @@ In `Settings > Trusted Publisher`, configure:
 
 ```text
 Publisher: GitHub Actions
-Organization or user: gengbingbing
+Organization or user: AlephantAI
 Repository: n8n-nodes
 Workflow filename: publish.yml
 Environment name: leave blank
@@ -69,7 +69,7 @@ Confirm `package.json` has the correct repository:
 ```json
 "repository": {
   "type": "git",
-  "url": "git+https://github.com/gengbingbing/n8n-nodes.git"
+  "url": "git+https://github.com/AlephantAI/alephant-n8n.git"
 }
 ```
 
@@ -139,7 +139,7 @@ This usually means npm did not authenticate the publisher for the scoped package
 
 Check:
 
-1. npm Trusted Publisher is saved for `gengbingbing/n8n-nodes` and `publish.yml`.
+1. npm Trusted Publisher is saved for `AlephantAI/n8n-nodes` and `publish.yml`.
 2. GitHub Actions secrets do not contain `NPM_TOKEN`.
 3. The workflow has `id-token: write`.
 4. The workflow updates npm to a recent version before publishing.
@@ -152,5 +152,5 @@ If all of those are correct, publish a new patch version. Do not retry the same 
 Use the `git+https` URL format in `package.json`:
 
 ```text
-git+https://github.com/gengbingbing/n8n-nodes.git
+git+https://github.com/AlephantAI/n8n-nodes.git
 ```

@@ -6,7 +6,7 @@
 # One-time npm setup, recommended:
 #   npmjs.com package settings > Publish access > Trusted Publishers
 #   Add GitHub Actions with:
-#     Repository owner: gengbingbing
+#     Repository owner: AlephantAI
 #     Repository name: n8n-nodes
 #     Workflow name: publish.yml
 #     Environment: leave blank
