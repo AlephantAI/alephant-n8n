@@ -1,7 +1,17 @@
 import type { IExecuteFunctions } from 'n8n-workflow';
 import { AlephantUsage, buildUsageRequest } from '../nodes/AlephantUsage/AlephantUsage.node';
 
+function getNodeProperty(name: string) {
+  return new AlephantUsage().description.properties.find((property) => property.name === name);
+}
+
 describe('Alephant Usage node', () => {
+  it('uses n8n title case for cost by model operation label', () => {
+    expect(getNodeProperty('operation')).toMatchObject({
+      options: expect.arrayContaining([{ name: 'Cost by Model', value: 'costByModel' }]),
+    });
+  });
+
   it.each([
     ['scope', {}, { path: '/api/v1/cockpit/scope' }],
     [

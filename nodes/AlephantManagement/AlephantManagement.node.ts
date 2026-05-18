@@ -367,7 +367,7 @@ export class AlephantManagement implements INodeType {
         default: 'summary',
         displayOptions: { show: { resource: ['workspaceUsage'] } },
         options: [
-          { name: 'Cost By Model', value: 'costByModel' },
+          { name: 'Cost by Model', value: 'costByModel' },
           { name: 'History', value: 'history' },
           { name: 'Summary', value: 'summary' },
         ],

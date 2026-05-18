@@ -195,7 +195,7 @@ export class AlephantUsage implements INodeType {
         default: 'usageSummary',
         options: [
           { name: 'Budget Status', value: 'budgetStatus' },
-          { name: 'Cost By Model', value: 'costByModel' },
+          { name: 'Cost by Model', value: 'costByModel' },
           { name: 'Daily Costs', value: 'dailyCosts' },
           { name: 'Recent Requests', value: 'recentRequests' },
           { name: 'Request Log Detail', value: 'requestLogDetail' },

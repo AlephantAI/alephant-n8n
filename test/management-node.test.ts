@@ -10,6 +10,12 @@ function getNodeProperties(name: string) {
 }
 
 describe('Alephant Management node', () => {
+  it('uses n8n title case for workspace usage cost by model operation label', () => {
+    expect(getNodeProperties('workspaceUsageOperation')[0]).toMatchObject({
+      options: expect.arrayContaining([{ name: 'Cost by Model', value: 'costByModel' }]),
+    });
+  });
+
   it('maps virtual key revoke', () => {
     expect(buildManagementRequest('virtualKey', 'revoke', { id: 'vk-id' })).toEqual({
       method: 'POST',
