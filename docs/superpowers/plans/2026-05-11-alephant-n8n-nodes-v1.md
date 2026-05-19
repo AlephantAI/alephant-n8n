@@ -135,7 +135,7 @@ mkdir -p credentials shared test docs scripts nodes/AlephantAi nodes/AlephantUsa
   "version": "0.1.0",
   "description": "n8n nodes for Alephant AI Gateway, Virtual Key usage, and management automation",
   "license": "MIT",
-  "homepage": "https://alephant.ai",
+  "homepage": "https://alephant.io",
   "author": {
     "name": "Alephant"
   },
@@ -680,7 +680,7 @@ import { DEFAULT_ANALYTICS_BASE_URL, DEFAULT_GATEWAY_BASE_URL } from '../shared/
 export class AlephantVirtualKeyApi implements ICredentialType {
   name = 'alephantVirtualKeyApi';
   displayName = 'Alephant Virtual Key';
-  documentationUrl = 'https://docs.alephant.ai/integrations/n8n';
+  documentationUrl = 'https://developers.alephant.io/n8n';
 
   properties: INodeProperties[] = [
     {
@@ -721,7 +721,7 @@ import { DEFAULT_ANALYTICS_BASE_URL, DEFAULT_SAAS_BASE_URL } from '../shared/con
 export class AlephantManagerApi implements ICredentialType {
   name = 'alephantManagerApi';
   displayName = 'Alephant Manager';
-  documentationUrl = 'https://docs.alephant.ai/integrations/n8n';
+  documentationUrl = 'https://developers.alephant.io/n8n';
 
   properties: INodeProperties[] = [
     {
@@ -1850,7 +1850,7 @@ git commit -m "test(n8n): verify Alephant node package"
 - Analytics usage 的 `GET /api/v1/analytics/usage` 只支持 `agentId`、`memberId`、`departmentId` 三种 scoped filter，且一次最多使用一个；未暴露 `virtualKeyId` filter。
 - API Reference 未暴露 `/api/v1/virtual-keys/{id}/analytics/summary|history|models`。因此 Alephant Management v1 不实现 PAT 任意 VK analytics，避免生成不可用操作。
 - AI Gateway host 是 `https://ai.alephant.io/v1`，OpenAI-compatible endpoint path 是 `POST /chat/completions`；执行前必须用当前生产 Gateway base URL 做 smoke test，确认 `Authorization: Bearer <virtual-key>` + OpenAI-compatible body 可用。
-- 生产 API host 需要在发布前最终确认：公开 API Reference 位于 `developers.alephant.io/api-reference`；当前 host 分别是 AI Gateway `https://ai.alephant.io/v1`、SaaS 后端 `https://alephant.io`、统计分析 `https://analytics.alephant.io`。现有 MCP 文档示例曾使用 `https://api.alephant.ai`。本 package 保持 base URL 可选配置；发布默认值必须以产品当前生产域名为准。
+- 生产 API host 需要在发布前最终确认：公开 API Reference 位于 `developers.alephant.io/api-reference`；当前 host 分别是 AI Gateway `https://ai.alephant.io/v1`、SaaS 后端 `https://alephant.io`、统计分析 `https://analytics.alephant.io`。现有 MCP 文档示例曾使用 `https://alephant.io`。本 package 保持 base URL 可选配置；发布默认值必须以产品当前生产域名为准。
 
 ## 任务 8：本地 n8n 运行 smoke test
 

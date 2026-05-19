@@ -110,4 +110,4 @@ You can pass structured OpenAI-compatible message arrays by changing **Input Mod
 
 ## Support
 
-For product and API documentation, visit `https://alephant.ai`.
+For product and API documentation, visit `https://alephant.io`.

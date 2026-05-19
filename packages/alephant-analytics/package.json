@@ -3,11 +3,11 @@
   "version": "0.1.2",
   "description": "n8n node for Alephant AI usage analytics and request log lookups",
   "license": "MIT",
-  "homepage": "https://alephant.ai",
+  "homepage": "https://alephant.io",
   "author": {
     "name": "Alephant",
     "email": "dev@alephant.io",
-    "url": "https://alephant.ai"
+    "url": "https://alephant.io"
   },
   "repository": {
     "type": "git",

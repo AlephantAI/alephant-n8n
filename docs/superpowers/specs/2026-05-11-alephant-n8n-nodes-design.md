@@ -42,8 +42,8 @@ Alephant BYO-KEY 需要接入 n8n，让用户在自动化 workflow 中通过 Ale
 字段：
 
 - `virtualKey`：Virtual Key 明文，作为 Bearer token 使用。
-- `gatewayBaseUrl`：可选，高级配置。AI Gateway base URL，未填写时使用节点内置生产默认值，例如 `https://gateway.alephant.ai/v1`。
-- `apiBaseUrl`：可选，高级配置。SaaS API base URL，用于 cockpit API，未填写时使用节点内置生产默认值，例如 `https://api.alephant.ai`。
+- `gatewayBaseUrl`：可选，高级配置。AI Gateway base URL，未填写时使用节点内置生产默认值，例如 `https://gateway.alephant.io/v1`。
+- `apiBaseUrl`：可选，高级配置。SaaS API base URL，用于 cockpit API，未填写时使用节点内置生产默认值，例如 `https://api.alephant.io`。
 
 base URL 设计原则：
 
@@ -66,7 +66,7 @@ Content-Type: application/json
 
 - `pat`：Personal Access Token。
 - `workspaceId`：目标 workspace UUID。
-- `apiBaseUrl`：可选，高级配置。SaaS API base URL，未填写时使用节点内置生产默认值，例如 `https://api.alephant.ai`。
+- `apiBaseUrl`：可选，高级配置。SaaS API base URL，未填写时使用节点内置生产默认值，例如 `https://alephant.io`。
 
 base URL 设计原则：
 

@@ -96,4 +96,4 @@ Revocation is a write operation. Use a PAT with the required write scope.
 
 ## Support
 
-For product and API documentation, visit `https://alephant.ai`.
+For product and API documentation, visit `https://alephant.io`.

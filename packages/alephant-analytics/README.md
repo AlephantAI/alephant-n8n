@@ -81,4 +81,4 @@ The node polls the request-log endpoint for a short period to account for log in
 
 ## Support
 
-For product and API documentation, visit `https://alephant.ai`.
+For product and API documentation, visit `https://alephant.io`.

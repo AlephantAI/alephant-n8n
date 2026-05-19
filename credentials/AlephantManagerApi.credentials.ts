@@ -4,7 +4,7 @@ import { DEFAULT_ANALYTICS_BASE_URL, DEFAULT_SAAS_BASE_URL } from '../shared/con
 export class AlephantManagerApi implements ICredentialType {
   name = 'alephantManagerApi';
   displayName = 'Alephant Manager';
-  documentationUrl = 'https://docs.alephant.ai/integrations/n8n';
+  documentationUrl = 'https://developers.alephant.io/n8n';
   test: ICredentialTestRequest = {
     request: {
       baseURL: '={{$credentials.saasBaseUrl}}',

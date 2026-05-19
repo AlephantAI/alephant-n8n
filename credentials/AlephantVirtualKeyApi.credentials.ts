@@ -8,7 +8,7 @@ import {
 export class AlephantVirtualKeyApi implements ICredentialType {
   name = 'alephantVirtualKeyApi';
   displayName = 'Alephant Virtual Key';
-  documentationUrl = 'https://docs.alephant.ai/integrations/n8n';
+  documentationUrl = 'https://developers.alephant.io/n8n';
   test: ICredentialTestRequest = {
     request: {
       baseURL: '={{$credentials.gatewayBaseUrl}}',
