@@ -6,6 +6,10 @@ function getNodeProperty(name: string) {
 }
 
 describe('Alephant Usage node', () => {
+  it('can be used as an AI Agent tool', () => {
+    expect(new AlephantUsage().description.usableAsTool).toBe(true);
+  });
+
   it('uses n8n title case for cost by model operation label', () => {
     expect(getNodeProperty('operation')).toMatchObject({
       options: expect.arrayContaining([{ name: 'Cost by Model', value: 'costByModel' }]),
