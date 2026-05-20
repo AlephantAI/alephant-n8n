@@ -11,8 +11,9 @@ export class AlephantVirtualKeyApi implements ICredentialType {
   documentationUrl = 'https://developers.alephant.io/n8n';
   test: ICredentialTestRequest = {
     request: {
-      baseURL: '={{$credentials.gatewayBaseUrl}}',
-      url: '/models',
+      baseURL: '={{$credentials.saasBaseUrl}}',
+      url: '/api/v1/cockpit/scope',
+      method: 'GET',
       headers: {
         Authorization: '=Bearer {{$credentials.virtualKey}}',
       },

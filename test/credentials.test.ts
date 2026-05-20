@@ -80,8 +80,9 @@ describe('credential metadata', () => {
     });
     expect(credential.test).toMatchObject({
       request: {
-        baseURL: '={{$credentials.gatewayBaseUrl}}',
-        url: '/models',
+        baseURL: '={{$credentials.saasBaseUrl}}',
+        method: 'GET',
+        url: '/api/v1/cockpit/scope',
         headers: {
           Authorization: '=Bearer {{$credentials.virtualKey}}',
         },
