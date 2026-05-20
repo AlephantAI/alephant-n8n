@@ -53,6 +53,7 @@ function readPackageJson(packageDirectory: string) {
     name: string;
     n8n: { nodes: string[] };
     peerDependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
   };
 }
 
@@ -77,11 +78,12 @@ describe('n8n community scanner compatibility', () => {
   );
 
   it.each(verificationPackages)(
-    '$packageName declares n8n-workflow as a peer dependency',
+    '$packageName declares n8n-workflow as a runtime-provided dependency',
     ({ directory }) => {
       const packageJson = readPackageJson(directory);
 
-      expect(packageJson.peerDependencies).toHaveProperty('n8n-workflow');
+      expect(packageJson.peerDependencies).toHaveProperty('n8n-workflow', '*');
+      expect(packageJson.devDependencies).toHaveProperty('n8n-workflow', '*');
     },
   );
 

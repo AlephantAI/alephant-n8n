@@ -1,6 +1,6 @@
 {
   "name": "@alephantai/n8n-nodes-alephant-analytics",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "n8n node for Alephant AI usage analytics and request log lookups",
   "license": "MIT",
   "homepage": "https://alephant.io",
@@ -45,10 +45,10 @@
     ]
   },
   "peerDependencies": {
-    "n8n-workflow": "^2.16.0"
+    "n8n-workflow": "*"
   },
   "devDependencies": {
-    "n8n-workflow": "^2.16.0",
+    "n8n-workflow": "*",
     "typescript": "^5.6.3"
   }
 }
