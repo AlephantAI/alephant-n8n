@@ -183,7 +183,6 @@ export class AlephantUsage implements INodeType {
     description:
       'Alephant AI Analytics provides visibility into AI usage, cost, latency, model/provider performance, agent sessions, and request-level traces across your organization. It helps teams understand spend patterns, diagnose issues, and optimize AI operations from one unified dashboard.',
     defaults: { name: 'Alephant AI Analytics' },
-    usableAsTool: true,
     inputs: [NodeConnectionTypes.Main],
     outputs: [NodeConnectionTypes.Main],
     credentials: [{ name: 'alephantVirtualKeyApi', required: true }],
