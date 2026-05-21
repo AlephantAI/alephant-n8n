@@ -183,6 +183,7 @@ export class AlephantUsage implements INodeType {
     description:
       'Alephant AI Analytics provides visibility into AI usage, cost, latency, model/provider performance, agent sessions, and request-level traces across your organization. It helps teams understand spend patterns, diagnose issues, and optimize AI operations from one unified dashboard.',
     defaults: { name: 'Alephant AI Analytics' },
+    usableAsTool: true,
     inputs: [NodeConnectionTypes.Main],
     outputs: [NodeConnectionTypes.Main],
     credentials: [{ name: 'alephantVirtualKeyApi', required: true }],
@@ -191,8 +192,9 @@ export class AlephantUsage implements INodeType {
         displayName: 'Operation',
         name: 'operation',
         type: 'options',
-        noDataExpression: true,
         default: 'usageSummary',
+        description:
+          'Choose which Alephant analytics operation to run. In AI tool mode, let the model select this from the user prompt.',
         options: [
           { name: 'Budget Status', value: 'budgetStatus' },
           { name: 'Cost by Model', value: 'costByModel' },

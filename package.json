@@ -45,13 +45,6 @@
     ],
     "nodes": [
       "dist/nodes/AlephantAi/AlephantAi.node.js",
-      "dist/nodes/AlephantUsage/AlephantBudgetStatus.node.js",
-      "dist/nodes/AlephantUsage/AlephantCostByModel.node.js",
-      "dist/nodes/AlephantUsage/AlephantDailyCosts.node.js",
-      "dist/nodes/AlephantUsage/AlephantRecentRequests.node.js",
-      "dist/nodes/AlephantUsage/AlephantRequestLogDetail.node.js",
-      "dist/nodes/AlephantUsage/AlephantScope.node.js",
-      "dist/nodes/AlephantUsage/AlephantUsageSummary.node.js",
       "dist/nodes/AlephantUsage/AlephantUsage.node.js",
       "dist/nodes/AlephantManagement/AlephantManagement.node.js"
     ]
