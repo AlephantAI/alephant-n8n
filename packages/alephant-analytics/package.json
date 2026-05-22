@@ -1,6 +1,6 @@
 {
   "name": "@alephantai/n8n-nodes-alephant-analytics",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "n8n node for Alephant AI usage analytics and request log lookups",
   "license": "MIT",
   "homepage": "https://alephant.io",
@@ -25,7 +25,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json && node ../../scripts/copy-package-assets.cjs dist AlephantUsage",
+    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
+    "build": "npm run clean && tsc -p tsconfig.json && node ../../scripts/copy-package-assets.cjs dist AlephantUsage",
     "lint": "npm --prefix ../.. run lint",
     "test": "npm --prefix ../.. run test",
     "prepublishOnly": "npm run lint && npm run test && npm run build"
