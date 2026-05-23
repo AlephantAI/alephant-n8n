@@ -1,6 +1,6 @@
 {
   "name": "@alephantai/n8n-nodes-alephant-analytics-ai",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "n8n AI tool node for Alephant analytics",
   "license": "MIT",
   "homepage": "https://alephant.io",
