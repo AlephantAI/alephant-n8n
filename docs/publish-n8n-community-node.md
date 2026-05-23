@@ -12,6 +12,15 @@ Open the package settings on npm:
 https://www.npmjs.com/package/@alephantai/n8n-nodes-alephant
 ```
 
+For split packages, use the matching npm package settings page:
+
+```text
+https://www.npmjs.com/package/@alephantai/n8n-nodes-alephant-ai
+https://www.npmjs.com/package/@alephantai/n8n-nodes-alephant-analytics
+https://www.npmjs.com/package/@alephantai/n8n-nodes-alephant-analytics-ai
+https://www.npmjs.com/package/@alephantai/n8n-nodes-alephant-management
+```
+
 In `Settings > Trusted Publisher`, configure:
 
 ```text
@@ -31,8 +40,11 @@ The release workflow is `.github/workflows/publish.yml`.
 It runs on version tags:
 
 ```text
-0.1.4
 v0.1.4
+alephant-ai-v0.1.0
+alephant-analytics-v0.1.0
+alephant-analytics-ai-v0.1.0
+alephant-management-v0.1.0
 ```
 
 The workflow must have:
@@ -81,6 +93,17 @@ git push
 git push --tags
 ```
 
+For split packages, update the package version in that package directory, commit it, then push the matching tag:
+
+```bash
+npm --prefix packages/alephant-analytics-ai version patch --no-git-tag-version
+git add packages/alephant-analytics-ai/package.json
+git commit -m "release alephant analytics ai package"
+git tag alephant-analytics-ai-v$(node -p "require('./packages/alephant-analytics-ai/package.json').version")
+git push
+git push --tags
+```
+
 GitHub Actions will publish the package when the tag is pushed.
 
 ## Verify the release
@@ -109,6 +132,12 @@ Use:
 @alephantai/n8n-nodes-alephant
 ```
 
+For the analytics AI tool package, install:
+
+```text
+@alephantai/n8n-nodes-alephant-analytics-ai
+```
+
 For n8n Cloud listing, submit the package through the n8n Creator Portal after the npm release has provenance from GitHub Actions.
 
 ## Submit to n8n community listing
@@ -123,6 +152,12 @@ npm run test
 npm run build
 npm --cache /private/tmp/npm-cache-codex pack --dry-run
 npx @n8n/scan-community-package @alephantai/n8n-nodes-alephant
+```
+
+For the analytics AI tool package:
+
+```bash
+npx @n8n/scan-community-package @alephantai/n8n-nodes-alephant-analytics-ai
 ```
 
 The scanner downloads the currently published npm package. If you fixed a scanner issue locally, publish a new patch version first, then rerun the scanner against the package name.

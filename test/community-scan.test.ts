@@ -29,6 +29,19 @@ const verificationPackages = [
     ],
   },
   {
+    directory: 'alephant-analytics-ai',
+    packageName: '@alephantai/n8n-nodes-alephant-analytics-ai',
+    nodePath: 'dist/nodes/AlephantAnalyticsAi/AlephantAnalyticsAi.node.js',
+    readmeTerms: [
+      'Installation',
+      'Authentication',
+      'Alephant Virtual Key',
+      'https://developers.alephant.io/docs/overview/getting-started/quickstart-guide',
+      'Alephant-Analytics-AI',
+      'filled by AI',
+    ],
+  },
+  {
     directory: 'alephant-management',
     packageName: '@alephantai/n8n-nodes-alephant-management',
     nodePath: 'dist/nodes/AlephantManagement/AlephantManagement.node.js',
@@ -111,4 +124,37 @@ describe('n8n community scanner compatibility', () => {
       }
     },
   );
+
+  it('publishes the analytics AI package from its version tag', () => {
+    const workflow = fs.readFileSync(
+      path.join(__dirname, '..', '.github', 'workflows', 'publish.yml'),
+      'utf8',
+    );
+
+    expect(workflow).toContain("'alephant-analytics-ai-v*.*.*'");
+    expect(workflow).toContain('alephant-analytics-ai-v*.*.*)');
+    expect(workflow).toContain('PACKAGE_DIR="packages/alephant-analytics-ai"');
+    expect(workflow).toContain('TAG_VERSION="${GITHUB_REF_NAME#alephant-analytics-ai-v}"');
+  });
+
+  it('keeps the analytics AI package limited to one node implementation', () => {
+    const tsconfig = fs.readFileSync(
+      path.join(__dirname, '..', 'packages', 'alephant-analytics-ai', 'tsconfig.json'),
+      'utf8',
+    );
+    const source = fs.readFileSync(
+      path.join(
+        __dirname,
+        '..',
+        'nodes',
+        'AlephantAnalyticsAi',
+        'AlephantAnalyticsAi.node.ts',
+      ),
+      'utf8',
+    );
+
+    expect(tsconfig).toContain('../../nodes/AlephantAnalyticsAi/**/*.ts');
+    expect(tsconfig).not.toContain('../../nodes/AlephantUsage/**/*.ts');
+    expect(source).not.toContain('../AlephantUsage/AlephantUsage.node');
+  });
 });

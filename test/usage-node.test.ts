@@ -1,8 +1,14 @@
 import type { IExecuteFunctions } from 'n8n-workflow';
+import { NodeConnectionTypes } from 'n8n-workflow';
+import { AlephantAnalyticsAi } from '../nodes/AlephantAnalyticsAi/AlephantAnalyticsAi.node';
 import { AlephantUsage, buildUsageRequest } from '../nodes/AlephantUsage/AlephantUsage.node';
 
 function getNodeProperty(name: string) {
   return new AlephantUsage().description.properties.find((property) => property.name === name);
+}
+
+function getAnalyticsAiNodeProperty(name: string) {
+  return new AlephantAnalyticsAi().description.properties.find((property) => property.name === name);
 }
 
 describe('Alephant Usage node', () => {
@@ -13,6 +19,26 @@ describe('Alephant Usage node', () => {
   it('uses n8n title case for cost by model operation label', () => {
     expect(getNodeProperty('operation')).toMatchObject({
       options: expect.arrayContaining([{ name: 'Cost by Model', value: 'costByModel' }]),
+    });
+  });
+
+  it('exposes an AI tool variant for Alephant analytics', () => {
+    expect(new AlephantAnalyticsAi().description).toMatchObject({
+      displayName: 'Alephant-Analytics-AI',
+      name: 'alephantAnalyticsAi',
+      defaults: { name: 'Alephant-Analytics-AI' },
+      inputs: [],
+      outputs: [NodeConnectionTypes.AiTool],
+      usableAsTool: true,
+    });
+  });
+
+  it('lets AI fill operation and period in the AI tool variant', () => {
+    expect(getAnalyticsAiNodeProperty('operation')).toMatchObject({
+      options: expect.arrayContaining([{ name: 'filled by AI', value: 'usageSummary' }]),
+    });
+    expect(getAnalyticsAiNodeProperty('period')).toMatchObject({
+      options: expect.arrayContaining([{ name: 'filled by AI', value: '7d' }]),
     });
   });
 

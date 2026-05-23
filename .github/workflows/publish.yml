@@ -7,6 +7,7 @@
 #   v0.1.11 publishes the root all-in-one package.
 #   alephant-ai-v0.1.0 publishes packages/alephant-ai.
 #   alephant-analytics-v0.1.0 publishes packages/alephant-analytics.
+#   alephant-analytics-ai-v0.1.0 publishes packages/alephant-analytics-ai.
 #   alephant-management-v0.1.0 publishes packages/alephant-management.
 #
 # One-time npm setup per package, recommended:
@@ -25,6 +26,7 @@ on:
       - 'v*.*.*'
       - 'alephant-ai-v*.*.*'
       - 'alephant-analytics-v*.*.*'
+      - 'alephant-analytics-ai-v*.*.*'
       - 'alephant-management-v*.*.*'
 
 jobs:
@@ -72,6 +74,10 @@ jobs:
             alephant-analytics-v*.*.*)
               PACKAGE_DIR="packages/alephant-analytics"
               TAG_VERSION="${GITHUB_REF_NAME#alephant-analytics-v}"
+              ;;
+            alephant-analytics-ai-v*.*.*)
+              PACKAGE_DIR="packages/alephant-analytics-ai"
+              TAG_VERSION="${GITHUB_REF_NAME#alephant-analytics-ai-v}"
               ;;
             alephant-management-v*.*.*)
               PACKAGE_DIR="packages/alephant-management"
