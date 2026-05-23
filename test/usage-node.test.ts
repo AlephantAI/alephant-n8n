@@ -1,6 +1,5 @@
 import type { IExecuteFunctions, ISupplyDataFunctions } from 'n8n-workflow';
 import { NodeConnectionTypes } from 'n8n-workflow';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 import { AlephantAnalyticsAi } from '../nodes/AlephantAnalyticsAi/AlephantAnalyticsAi.node';
 import { AlephantUsage, buildUsageRequest } from '../nodes/AlephantUsage/AlephantUsage.node';
 
@@ -59,11 +58,11 @@ describe('Alephant Usage node', () => {
     const supplyData = await node.supplyData.call(ctx, 0);
     const tool = supplyData.response as {
       name: string;
-      schema: Parameters<typeof zodToJsonSchema>[0];
+      schema: { type?: string };
       invoke(input: unknown): Promise<string>;
     };
 
-    expect(zodToJsonSchema(tool.schema)).toMatchObject({ type: 'object' });
+    expect(tool.schema).toMatchObject({ type: 'object' });
     await expect(tool.invoke({ operation: 'usageSummary', period: '7d' })).resolves.toBe(
       JSON.stringify({ total_cost: 12.34 }),
     );
@@ -78,6 +77,31 @@ describe('Alephant Usage node', () => {
       qs: { period: '7d' },
       body: undefined,
     });
+  });
+
+  it('uses default AI tool input when partial execution passes an empty object', async () => {
+    const httpRequest = jest.fn().mockResolvedValue({ total_cost: 12.34 });
+    const node = new AlephantAnalyticsAi();
+    const ctx = {
+      getCredentials: jest.fn().mockResolvedValue({
+        virtualKey: 'vk_test',
+        saasBaseUrl: 'https://saas.example/',
+        analyticsBaseUrl: 'https://analytics.example/',
+      }),
+      getNode: jest.fn().mockReturnValue({ name: 'Alephant-Analytics-AI' }),
+      helpers: { httpRequest },
+    } as unknown as ISupplyDataFunctions;
+    const tool = (await node.supplyData.call(ctx, 0)).response as {
+      invoke(input: unknown): Promise<string>;
+    };
+
+    await expect(tool.invoke({})).resolves.toBe(JSON.stringify({ total_cost: 12.34 }));
+    expect(httpRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: 'https://saas.example/api/v1/cockpit/usage-summary',
+        qs: { period: '7d' },
+      }),
+    );
   });
 
   it.each([

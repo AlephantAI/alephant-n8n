@@ -13,7 +13,6 @@ import {
   nodeNameToToolName,
   tryToParseAlphanumericString,
 } from 'n8n-workflow';
-import { z } from 'zod';
 import { executeUsageNode, runUsageRequest } from '../../shared/usage';
 import type { UsageOperation } from '../../shared/usage';
 
@@ -25,30 +24,62 @@ function toSafeToolName(nodeName: string): string {
   return normalized || 'Alephant_Analytics_AI';
 }
 
-const analyticsToolSchema = z.object({
-  operation: z
-    .enum([
-      'scope',
-      'budgetStatus',
-      'usageSummary',
-      'dailyCosts',
-      'costByModel',
-      'recentRequests',
-      'requestLogDetail',
-    ])
-    .describe('Alephant analytics operation to run.'),
-  period: z
-    .enum(['24h', '7d', '30d', '90d'])
-    .optional()
-    .describe('Time period for budget, usage, daily cost, and cost-by-model operations.'),
-  limit: z.number().int().positive().optional().describe('Maximum recent requests to return.'),
-  offset: z.number().int().min(0).optional().describe('Recent requests offset.'),
-  requestLogId: z.string().optional().describe('Request log ID for requestLogDetail.'),
-  workspaceId: z
-    .string()
-    .optional()
-    .describe('Workspace ID for request log detail lookups when credentials do not include one.'),
-});
+function readToolInput(input: unknown): Record<string, unknown> {
+  return typeof input === 'object' && input !== null ? (input as Record<string, unknown>) : {};
+}
+
+function readString(value: unknown, fallback: string): string {
+  return typeof value === 'string' && value.trim() !== '' ? value : fallback;
+}
+
+function readNumber(value: unknown, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+}
+
+const analyticsToolSchema = {
+  type: 'object',
+  properties: {
+    operation: {
+      type: 'string',
+      enum: [
+        'scope',
+        'budgetStatus',
+        'usageSummary',
+        'dailyCosts',
+        'costByModel',
+        'recentRequests',
+        'requestLogDetail',
+      ],
+      description: 'Alephant analytics operation to run.',
+      default: 'usageSummary',
+    },
+    period: {
+      type: 'string',
+      enum: ['24h', '7d', '30d', '90d'],
+      description: 'Time period for budget, usage, daily cost, and cost-by-model operations.',
+      default: '7d',
+    },
+    limit: {
+      type: 'integer',
+      minimum: 1,
+      description: 'Maximum recent requests to return.',
+    },
+    offset: {
+      type: 'integer',
+      minimum: 0,
+      description: 'Recent requests offset.',
+    },
+    requestLogId: {
+      type: 'string',
+      description: 'Request log ID for requestLogDetail.',
+    },
+    workspaceId: {
+      type: 'string',
+      description: 'Workspace ID for request log detail lookups when credentials do not include one.',
+    },
+  },
+  additionalProperties: false,
+} as const;
 
 export class AlephantAnalyticsAi implements INodeType {
   description: INodeTypeDescription = {
@@ -169,15 +200,16 @@ export class AlephantAnalyticsAi implements INodeType {
           'Query Alephant AI analytics for usage, cost, latency, model/provider performance, budget status, recent requests, and request log detail.',
         schema: analyticsToolSchema,
         func: async (input) => {
+          const toolInput = readToolInput(input);
           const data = await runUsageRequest(
             this,
             {
-              operation: input.operation as UsageOperation,
-              period: input.period ?? '7d',
-              limit: input.limit ?? 50,
-              offset: input.offset ?? 0,
-              requestLogId: input.requestLogId ?? '',
-              workspaceId: input.workspaceId ?? '',
+              operation: readString(toolInput.operation, 'usageSummary') as UsageOperation,
+              period: readString(toolInput.period, '7d'),
+              limit: readNumber(toolInput.limit, 50),
+              offset: readNumber(toolInput.offset, 0),
+              requestLogId: readString(toolInput.requestLogId, ''),
+              workspaceId: readString(toolInput.workspaceId, ''),
             },
             itemIndex,
           );
