@@ -1,12 +1,17 @@
 import { NodeApiError } from 'n8n-workflow';
-import type { IExecuteFunctions, IHttpRequestMethods, JsonObject } from 'n8n-workflow';
+import type {
+  IExecuteFunctions,
+  IHttpRequestMethods,
+  ISupplyDataFunctions,
+  JsonObject,
+} from 'n8n-workflow';
 
 function isObjectLike(value: unknown): value is JsonObject {
   return typeof value === 'object' && value !== null;
 }
 
 export function toNodeApiError(
-  ctx: IExecuteFunctions,
+  ctx: IExecuteFunctions | ISupplyDataFunctions,
   error: unknown,
   method: IHttpRequestMethods,
   url: string,

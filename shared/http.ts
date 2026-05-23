@@ -1,4 +1,10 @@
-import type { IDataObject, IExecuteFunctions, IHttpRequestMethods, IHttpRequestOptions } from 'n8n-workflow';
+import type {
+  IDataObject,
+  IExecuteFunctions,
+  IHttpRequestMethods,
+  IHttpRequestOptions,
+  ISupplyDataFunctions,
+} from 'n8n-workflow';
 import { toNodeApiError } from './errors';
 import { trimTrailingSlash } from './url';
 
@@ -40,7 +46,7 @@ function isTransientNetworkError(error: unknown): boolean {
 }
 
 export async function alephantRequest<T>(
-  ctx: IExecuteFunctions,
+  ctx: IExecuteFunctions | ISupplyDataFunctions,
   options: AlephantRequestOptions,
 ): Promise<T> {
   const url = `${trimTrailingSlash(options.baseUrl)}${options.path}`;

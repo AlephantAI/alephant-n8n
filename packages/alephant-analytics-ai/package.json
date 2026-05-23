@@ -1,6 +1,6 @@
 {
   "name": "@alephantai/n8n-nodes-alephant-analytics-ai",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "n8n AI tool node for Alephant analytics",
   "license": "MIT",
   "homepage": "https://alephant.io",
@@ -49,6 +49,10 @@
   },
   "peerDependencies": {
     "n8n-workflow": "*"
+  },
+  "dependencies": {
+    "@langchain/core": "^1.1.46",
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "n8n-workflow": "*",

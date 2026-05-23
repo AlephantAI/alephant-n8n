@@ -1,5 +1,6 @@
-import type { IExecuteFunctions } from 'n8n-workflow';
+import type { IExecuteFunctions, ISupplyDataFunctions } from 'n8n-workflow';
 import { NodeConnectionTypes } from 'n8n-workflow';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 import { AlephantAnalyticsAi } from '../nodes/AlephantAnalyticsAi/AlephantAnalyticsAi.node';
 import { AlephantUsage, buildUsageRequest } from '../nodes/AlephantUsage/AlephantUsage.node';
 
@@ -39,6 +40,43 @@ describe('Alephant Usage node', () => {
     });
     expect(getAnalyticsAiNodeProperty('period')).toMatchObject({
       options: expect.arrayContaining([{ name: 'filled by AI', value: '7d' }]),
+    });
+  });
+
+  it('supplies a structured AI tool with an object input schema', async () => {
+    const httpRequest = jest.fn().mockResolvedValue({ total_cost: 12.34 });
+    const node = new AlephantAnalyticsAi();
+    const ctx = {
+      getCredentials: jest.fn().mockResolvedValue({
+        virtualKey: 'vk_test',
+        saasBaseUrl: 'https://saas.example/',
+        analyticsBaseUrl: 'https://analytics.example/',
+      }),
+      getNode: jest.fn().mockReturnValue({ name: 'Alephant-Analytics-AI' }),
+      helpers: { httpRequest },
+    } as unknown as ISupplyDataFunctions;
+
+    const supplyData = await node.supplyData.call(ctx, 0);
+    const tool = supplyData.response as {
+      name: string;
+      schema: Parameters<typeof zodToJsonSchema>[0];
+      invoke(input: unknown): Promise<string>;
+    };
+
+    expect(zodToJsonSchema(tool.schema)).toMatchObject({ type: 'object' });
+    await expect(tool.invoke({ operation: 'usageSummary', period: '7d' })).resolves.toBe(
+      JSON.stringify({ total_cost: 12.34 }),
+    );
+    expect(httpRequest).toHaveBeenCalledWith({
+      method: 'GET',
+      url: 'https://saas.example/api/v1/cockpit/usage-summary',
+      json: true,
+      headers: {
+        Authorization: 'Bearer vk_test',
+        'Content-Type': 'application/json',
+      },
+      qs: { period: '7d' },
+      body: undefined,
     });
   });
 

@@ -1,6 +1,54 @@
-import type { IExecuteFunctions, INodeExecutionData, INodeType, INodeTypeDescription } from 'n8n-workflow';
-import { NodeConnectionTypes } from 'n8n-workflow';
-import { executeUsageNode } from '../../shared/usage';
+import { DynamicStructuredTool } from '@langchain/core/tools';
+import type {
+  IExecuteFunctions,
+  INodeExecutionData,
+  INodeType,
+  INodeTypeDescription,
+  ISupplyDataFunctions,
+  SupplyData,
+} from 'n8n-workflow';
+import {
+  NodeConnectionTypes,
+  NodeOperationError,
+  nodeNameToToolName,
+  tryToParseAlphanumericString,
+} from 'n8n-workflow';
+import { z } from 'zod';
+import { executeUsageNode, runUsageRequest } from '../../shared/usage';
+import type { UsageOperation } from '../../shared/usage';
+
+function toSafeToolName(nodeName: string): string {
+  const normalized = nodeNameToToolName(nodeName)
+    .replace(/[^A-Za-z0-9_]/g, '_')
+    .replace(/^[^A-Za-z_]+/, '');
+
+  return normalized || 'Alephant_Analytics_AI';
+}
+
+const analyticsToolSchema = z.object({
+  operation: z
+    .enum([
+      'scope',
+      'budgetStatus',
+      'usageSummary',
+      'dailyCosts',
+      'costByModel',
+      'recentRequests',
+      'requestLogDetail',
+    ])
+    .describe('Alephant analytics operation to run.'),
+  period: z
+    .enum(['24h', '7d', '30d', '90d'])
+    .optional()
+    .describe('Time period for budget, usage, daily cost, and cost-by-model operations.'),
+  limit: z.number().int().positive().optional().describe('Maximum recent requests to return.'),
+  offset: z.number().int().min(0).optional().describe('Recent requests offset.'),
+  requestLogId: z.string().optional().describe('Request log ID for requestLogDetail.'),
+  workspaceId: z
+    .string()
+    .optional()
+    .describe('Workspace ID for request log detail lookups when credentials do not include one.'),
+});
 
 export class AlephantAnalyticsAi implements INodeType {
   description: INodeTypeDescription = {
@@ -101,6 +149,44 @@ export class AlephantAnalyticsAi implements INodeType {
       },
     ],
   };
+
+  async supplyData(this: ISupplyDataFunctions, itemIndex: number): Promise<SupplyData> {
+    const name = toSafeToolName(this.getNode().name);
+    try {
+      tryToParseAlphanumericString(name);
+    } catch {
+      throw new NodeOperationError(this.getNode(), 'The name of this tool is not a valid alphanumeric string', {
+        itemIndex,
+        description:
+          "Only alphanumeric characters and underscores are allowed in the tool's name, and the name cannot start with a number",
+      });
+    }
+
+    return {
+      response: new DynamicStructuredTool({
+        name,
+        description:
+          'Query Alephant AI analytics for usage, cost, latency, model/provider performance, budget status, recent requests, and request log detail.',
+        schema: analyticsToolSchema,
+        func: async (input) => {
+          const data = await runUsageRequest(
+            this,
+            {
+              operation: input.operation as UsageOperation,
+              period: input.period ?? '7d',
+              limit: input.limit ?? 50,
+              offset: input.offset ?? 0,
+              requestLogId: input.requestLogId ?? '',
+              workspaceId: input.workspaceId ?? '',
+            },
+            itemIndex,
+          );
+
+          return JSON.stringify(data);
+        },
+      }),
+    };
+  }
 
   async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
     return executeUsageNode.call(this);

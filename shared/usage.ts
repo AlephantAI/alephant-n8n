@@ -1,4 +1,9 @@
-import type { IDataObject, IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
+import type {
+  IDataObject,
+  IExecuteFunctions,
+  INodeExecutionData,
+  ISupplyDataFunctions,
+} from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { ENDPOINTS } from './constants';
 import { resolveVirtualKeyCredentials } from './credentials';
@@ -20,6 +25,13 @@ export interface UsageRequestParams {
   limit?: number | null;
   offset?: number | null;
   requestLogId?: string | null;
+}
+
+export interface UsageToolInput extends UsageRequestParams {
+  operation: UsageOperation;
+  requestLogMaxAttempts?: number | null;
+  workspaceId?: string | null;
+  inputJson?: IDataObject;
 }
 
 export interface UsageRequest {
@@ -115,7 +127,7 @@ function isRequestLogNotFoundError(error: unknown): boolean {
 }
 
 async function requestWithLogPolling<T>(
-  ctx: IExecuteFunctions,
+  ctx: IExecuteFunctions | ISupplyDataFunctions,
   options: AlephantRequestOptions,
   maxAttempts: number,
 ): Promise<T> {
@@ -163,79 +175,94 @@ export function buildUsageRequest(
   }
 }
 
+export async function runUsageRequest(
+  ctx: IExecuteFunctions | ISupplyDataFunctions,
+  params: UsageToolInput,
+  itemIndex = 0,
+): Promise<IDataObject> {
+  const credentials = resolveVirtualKeyCredentials(
+    (await ctx.getCredentials('alephantVirtualKeyApi')) as AlephantVirtualKeyCredentials,
+  );
+  let request: UsageRequest;
+
+  try {
+    request = buildUsageRequest(params.operation, params);
+  } catch (error) {
+    throw new NodeOperationError(
+      ctx.getNode(),
+      error instanceof Error ? error.message : 'Invalid Alephant Usage input',
+      { itemIndex },
+    );
+  }
+
+  let workspaceId =
+    request.host === 'analytics'
+      ? normalizeOptionalString(params.workspaceId) ||
+        normalizeOptionalString(params.inputJson?.workspaceId) ||
+        normalizeOptionalString(params.inputJson?.workspace_id) ||
+        normalizeOptionalString(params.inputJson?.xWorkspaceId) ||
+        credentials.workspaceId
+      : undefined;
+
+  if (request.host === 'analytics' && workspaceId === '') {
+    const scope = await alephantRequest<IDataObject>(ctx, {
+      method: 'GET',
+      baseUrl: credentials.saasBaseUrl,
+      path: ENDPOINTS.cockpitScope,
+      token: credentials.virtualKey,
+      itemIndex,
+    });
+    workspaceId = extractWorkspaceIdFromScope(scope);
+  }
+
+  if (request.host === 'analytics' && workspaceId === '') {
+    throw new NodeOperationError(
+      ctx.getNode(),
+      'Workspace ID is required for request log detail lookups and could not be resolved from Alephant Scope',
+      { itemIndex },
+    );
+  }
+
+  const requestOptions: AlephantRequestOptions = {
+    method: 'GET',
+    baseUrl: request.host === 'analytics' ? credentials.analyticsBaseUrl : credentials.saasBaseUrl,
+    path: request.path,
+    token: credentials.virtualKey,
+    workspaceId,
+    qs: request.qs,
+    itemIndex,
+  };
+
+  return request.host === 'analytics'
+    ? await requestWithLogPolling<IDataObject>(
+        ctx,
+        requestOptions,
+        normalizeAttemptCount(params.requestLogMaxAttempts),
+      )
+    : await alephantRequest<IDataObject>(ctx, requestOptions);
+}
+
 export async function executeUsageNode(
   this: IExecuteFunctions,
 ): Promise<INodeExecutionData[][]> {
   const items = this.getInputData();
-  const credentials = resolveVirtualKeyCredentials(
-    (await this.getCredentials('alephantVirtualKeyApi')) as AlephantVirtualKeyCredentials,
-  );
   const returnData: INodeExecutionData[] = [];
 
   for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
-    const operation = this.getNodeParameter('operation', itemIndex) as UsageOperation;
-    let request: UsageRequest;
-
-    try {
-      request = buildUsageRequest(operation, {
+    const data = await runUsageRequest(
+      this,
+      {
+        operation: this.getNodeParameter('operation', itemIndex) as UsageOperation,
         period: this.getNodeParameter('period', itemIndex, '7d') as string,
         limit: this.getNodeParameter('limit', itemIndex, 50) as number,
         offset: this.getNodeParameter('offset', itemIndex, 0) as number,
         requestLogId: this.getNodeParameter('requestLogId', itemIndex, '') as string,
-      });
-    } catch (error) {
-      throw new NodeOperationError(
-        this.getNode(),
-        error instanceof Error ? error.message : 'Invalid Alephant Usage input',
-        { itemIndex },
-      );
-    }
-
-    let workspaceId =
-      request.host === 'analytics'
-        ? normalizeOptionalString(this.getNodeParameter('workspaceId', itemIndex, '')) ||
-          normalizeOptionalString(items[itemIndex]?.json?.workspaceId) ||
-          normalizeOptionalString(items[itemIndex]?.json?.workspace_id) ||
-          normalizeOptionalString(items[itemIndex]?.json?.xWorkspaceId) ||
-          credentials.workspaceId
-        : undefined;
-
-    if (request.host === 'analytics' && workspaceId === '') {
-      const scope = await alephantRequest<IDataObject>(this, {
-        method: 'GET',
-        baseUrl: credentials.saasBaseUrl,
-        path: ENDPOINTS.cockpitScope,
-        token: credentials.virtualKey,
-        itemIndex,
-      });
-      workspaceId = extractWorkspaceIdFromScope(scope);
-    }
-
-    if (request.host === 'analytics' && workspaceId === '') {
-      throw new NodeOperationError(
-        this.getNode(),
-        'Workspace ID is required for request log detail lookups and could not be resolved from Alephant Scope',
-        { itemIndex },
-      );
-    }
-
-    const requestOptions: AlephantRequestOptions = {
-      method: 'GET',
-      baseUrl: request.host === 'analytics' ? credentials.analyticsBaseUrl : credentials.saasBaseUrl,
-      path: request.path,
-      token: credentials.virtualKey,
-      workspaceId,
-      qs: request.qs,
+        workspaceId: this.getNodeParameter('workspaceId', itemIndex, '') as string,
+        requestLogMaxAttempts: this.getNodeParameter('requestLogMaxAttempts', itemIndex, 6) as number,
+        inputJson: items[itemIndex]?.json,
+      },
       itemIndex,
-    };
-    const data =
-      request.host === 'analytics'
-        ? await requestWithLogPolling<IDataObject>(
-            this,
-            requestOptions,
-            normalizeAttemptCount(this.getNodeParameter('requestLogMaxAttempts', itemIndex, 6)),
-          )
-        : await alephantRequest<IDataObject>(this, requestOptions);
+    );
 
     returnData.push({
       json: data,
