@@ -101,9 +101,26 @@ jobs:
         run: |
           PACKAGE_SPEC="${{ steps.package.outputs.package-name }}@${{ steps.package.outputs.package-version }}"
 
+          for attempt in 1 2 3 4 5 6; do
+            echo "Waiting for $PACKAGE_SPEC to be available from npm registry (attempt $attempt)..."
+            if npm view "$PACKAGE_SPEC" version; then
+              break
+            fi
+
+            if [ "$attempt" -eq 6 ]; then
+              echo "$PACKAGE_SPEC was not available from npm registry in time."
+              exit 1
+            fi
+
+            sleep 20
+          done
+
           for attempt in 1 2 3; do
             echo "Scanning $PACKAGE_SPEC (attempt $attempt)..."
-            if npx --yes @n8n/scan-community-package "$PACKAGE_SPEC"; then
+            SCAN_OUTPUT="$(npx --yes @n8n/scan-community-package "$PACKAGE_SPEC" 2>&1)"
+            echo "$SCAN_OUTPUT"
+
+            if echo "$SCAN_OUTPUT" | grep -q "has passed all security checks"; then
               exit 0
             fi
 
