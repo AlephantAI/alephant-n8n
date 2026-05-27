@@ -1,16 +1,12 @@
-# Publishes Alephant n8n community node packages to npm on version tag pushes.
+# Publishes the Alephant n8n community node package to npm on version tag pushes.
 #
 # n8n Creator Portal verification requires packages to be published from
 # GitHub Actions with an npm provenance statement.
 #
-# Tag formats:
-#   v0.1.11 publishes the root all-in-one package.
-#   alephant-ai-v0.1.0 publishes packages/alephant-ai.
-#   alephant-analytics-v0.1.0 publishes packages/alephant-analytics.
-#   alephant-analytics-ai-v0.1.0 publishes packages/alephant-analytics-ai.
-#   alephant-management-v0.1.0 publishes packages/alephant-management.
+# Tag format:
+#   v0.1.11 publishes the root Alephant package.
 #
-# One-time npm setup per package, recommended:
+# One-time npm setup, recommended:
 #   npmjs.com package settings > Publish access > Trusted Publishers
 #   Add GitHub Actions with:
 #     Repository owner: AlephantAI
@@ -24,10 +20,6 @@ on:
   push:
     tags:
       - 'v*.*.*'
-      - 'alephant-ai-v*.*.*'
-      - 'alephant-analytics-v*.*.*'
-      - 'alephant-analytics-ai-v*.*.*'
-      - 'alephant-management-v*.*.*'
 
 jobs:
   publish:
@@ -67,22 +59,6 @@ jobs:
               PACKAGE_DIR="."
               TAG_VERSION="${GITHUB_REF_NAME#v}"
               ;;
-            alephant-ai-v*.*.*)
-              PACKAGE_DIR="packages/alephant-ai"
-              TAG_VERSION="${GITHUB_REF_NAME#alephant-ai-v}"
-              ;;
-            alephant-analytics-v*.*.*)
-              PACKAGE_DIR="packages/alephant-analytics"
-              TAG_VERSION="${GITHUB_REF_NAME#alephant-analytics-v}"
-              ;;
-            alephant-analytics-ai-v*.*.*)
-              PACKAGE_DIR="packages/alephant-analytics-ai"
-              TAG_VERSION="${GITHUB_REF_NAME#alephant-analytics-ai-v}"
-              ;;
-            alephant-management-v*.*.*)
-              PACKAGE_DIR="packages/alephant-management"
-              TAG_VERSION="${GITHUB_REF_NAME#alephant-management-v}"
-              ;;
             *)
               echo "Unsupported publish tag: $GITHUB_REF_NAME"
               exit 1
@@ -120,3 +96,20 @@ jobs:
       - name: Publish
         run: npm publish --access public --provenance
         working-directory: ${{ steps.package.outputs.package-dir }}
+
+      - name: Verify published package with n8n scanner
+        run: |
+          PACKAGE_SPEC="${{ steps.package.outputs.package-name }}@${{ steps.package.outputs.package-version }}"
+
+          for attempt in 1 2 3; do
+            echo "Scanning $PACKAGE_SPEC (attempt $attempt)..."
+            if npx --yes @n8n/scan-community-package "$PACKAGE_SPEC"; then
+              exit 0
+            fi
+
+            if [ "$attempt" -lt 3 ]; then
+              sleep 20
+            fi
+          done
+
+          exit 1

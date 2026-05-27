@@ -71,6 +71,42 @@ function readPackageJson(packageDirectory: string) {
 }
 
 describe('n8n community scanner compatibility', () => {
+  it('registers one Alephant action node in the umbrella package', () => {
+    const packageJson = JSON.parse(
+      fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'),
+    ) as {
+      name: string;
+      files: string[];
+      n8n: { nodes: string[] };
+    };
+
+    expect(packageJson.name).toBe('@alephantai/n8n-nodes-alephant');
+    expect(packageJson.files).toEqual(['dist', 'README.md', 'package.json']);
+    expect(packageJson.n8n.nodes).toEqual(['dist/nodes/Alephant/Alephant.node.js']);
+  });
+
+  it('exposes AI Gateway and Analytics as resources in the umbrella node', async () => {
+    const { Alephant } = await import('../nodes/Alephant/Alephant.node');
+    const node = new Alephant();
+    const resource = node.description.properties.find(({ name }) => name === 'resource');
+
+    expect(node.description).toMatchObject({
+      displayName: 'Alephant',
+      name: 'alephant',
+      usableAsTool: true,
+      credentials: [{ name: 'alephantVirtualKeyApi', required: true }],
+    });
+    expect(resource).toMatchObject({
+      options: expect.arrayContaining([
+        { name: 'AI Gateway', value: 'aiGateway' },
+        { name: 'Analytics', value: 'analytics' },
+      ]),
+    });
+    expect(resource).not.toMatchObject({
+      options: expect.arrayContaining([{ name: 'Management', value: 'management' }]),
+    });
+  });
+
   it('does not use restricted timer globals in node source', () => {
     const usageNode = fs.readFileSync(
       path.join(__dirname, '..', 'nodes', 'AlephantUsage', 'AlephantUsage.node.ts'),
@@ -125,16 +161,19 @@ describe('n8n community scanner compatibility', () => {
     },
   );
 
-  it('publishes the analytics AI package from its version tag', () => {
+  it('publishes only the umbrella package from version tags', () => {
     const workflow = fs.readFileSync(
       path.join(__dirname, '..', '.github', 'workflows', 'publish.yml'),
       'utf8',
     );
 
-    expect(workflow).toContain("'alephant-analytics-ai-v*.*.*'");
-    expect(workflow).toContain('alephant-analytics-ai-v*.*.*)');
-    expect(workflow).toContain('PACKAGE_DIR="packages/alephant-analytics-ai"');
-    expect(workflow).toContain('TAG_VERSION="${GITHUB_REF_NAME#alephant-analytics-ai-v}"');
+    expect(workflow).toContain("'v*.*.*'");
+    expect(workflow).toContain('PACKAGE_DIR="."');
+    expect(workflow).not.toContain('alephant-ai-v*.*.*');
+    expect(workflow).not.toContain('alephant-analytics-v*.*.*');
+    expect(workflow).not.toContain('alephant-analytics-ai-v*.*.*');
+    expect(workflow).not.toContain('alephant-management-v*.*.*');
+    expect(workflow).not.toContain('PACKAGE_DIR="packages/');
   });
 
   it('keeps the analytics AI package limited to one node implementation', () => {

@@ -1,7 +1,7 @@
 {
   "name": "@alephantai/n8n-nodes-alephant",
   "version": "0.1.11",
-  "description": "n8n nodes for Alephant AI Gateway cost control, analytics, and workspace automation",
+  "description": "n8n node for Alephant AI Gateway cost control and analytics",
   "license": "MIT",
   "homepage": "https://alephant.io",
   "author": {
@@ -24,7 +24,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json && npm run copy:assets",
+    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
+    "build": "npm run clean && tsc -p tsconfig.json && npm run copy:assets",
     "copy:assets": "node scripts/copy-assets.cjs",
     "dev": "n8n-node dev",
     "lint": "eslint \"{credentials,nodes,shared,test}/**/*.ts\"",
@@ -33,20 +34,16 @@
   },
   "files": [
     "dist",
-    "docs",
     "README.md",
     "package.json"
   ],
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
-      "dist/credentials/AlephantVirtualKeyApi.credentials.js",
-      "dist/credentials/AlephantManagerApi.credentials.js"
+      "dist/credentials/AlephantVirtualKeyApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/AlephantAi/AlephantAi.node.js",
-      "dist/nodes/AlephantUsage/AlephantUsage.node.js",
-      "dist/nodes/AlephantManagement/AlephantManagement.node.js"
+      "dist/nodes/Alephant/Alephant.node.js"
     ]
   },
   "peerDependencies": {

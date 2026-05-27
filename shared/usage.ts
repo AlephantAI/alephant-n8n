@@ -20,6 +20,51 @@ export type UsageOperation =
   | 'recentRequests'
   | 'requestLogDetail';
 
+type UsageParameterMode = 'fixed' | 'aiDynamic';
+
+const USAGE_OPERATION_ALIASES: Record<string, UsageOperation> = {
+  scope: 'scope',
+  budgetstatus: 'budgetStatus',
+  budget_status: 'budgetStatus',
+  budget: 'budgetStatus',
+  usagessummary: 'usageSummary',
+  usagesummary: 'usageSummary',
+  usage_summary: 'usageSummary',
+  usage: 'usageSummary',
+  dailycosts: 'dailyCosts',
+  daily_costs: 'dailyCosts',
+  daily: 'dailyCosts',
+  costbymodel: 'costByModel',
+  cost_by_model: 'costByModel',
+  modelcosts: 'costByModel',
+  model_costs: 'costByModel',
+  recentrequests: 'recentRequests',
+  recent_requests: 'recentRequests',
+  requests: 'recentRequests',
+  requestlogdetail: 'requestLogDetail',
+  request_log_detail: 'requestLogDetail',
+  logdetail: 'requestLogDetail',
+};
+
+const USAGE_PERIOD_ALIASES: Record<string, string> = {
+  '24h': '24h',
+  '24hour': '24h',
+  '24hours': '24h',
+  '1day': '24h',
+  '7d': '7d',
+  '7day': '7d',
+  '7days': '7d',
+  week: '7d',
+  '30d': '30d',
+  '30day': '30d',
+  '30days': '30d',
+  month: '30d',
+  '90d': '90d',
+  '90day': '90d',
+  '90days': '90d',
+  quarter: '90d',
+};
+
 export interface UsageRequestParams {
   period?: string | null;
   limit?: number | null;
@@ -66,6 +111,34 @@ function requireRequestLogId(value: string | null | undefined): string {
 
 function normalizeOptionalString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
+}
+
+function normalizeUsageToken(value: unknown): string {
+  return normalizeOptionalString(value).toLowerCase().replace(/[\s-]+/g, '_');
+}
+
+function resolveUsageOperation(value: unknown): UsageOperation {
+  const key = normalizeUsageToken(value);
+  const operation = USAGE_OPERATION_ALIASES[key];
+
+  if (!operation) {
+    throw new Error(
+      'AI Operation must be one of: scope, budgetStatus, usageSummary, dailyCosts, costByModel, recentRequests, requestLogDetail',
+    );
+  }
+
+  return operation;
+}
+
+function resolveUsagePeriod(value: unknown): string {
+  const key = normalizeUsageToken(value);
+  const period = USAGE_PERIOD_ALIASES[key];
+
+  if (!period) {
+    throw new Error('AI Period must be one of: 24h, 7d, 30d, 90d');
+  }
+
+  return period;
 }
 
 function readPath(source: unknown, path: string): unknown {
@@ -249,11 +322,36 @@ export async function executeUsageNode(
   const returnData: INodeExecutionData[] = [];
 
   for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
+    const parameterMode = this.getNodeParameter(
+      'parameterMode',
+      itemIndex,
+      'fixed',
+    ) as UsageParameterMode;
+    let operation: UsageOperation;
+    let period: string;
+
+    try {
+      operation =
+        parameterMode === 'aiDynamic'
+          ? resolveUsageOperation(this.getNodeParameter('aiOperation', itemIndex))
+          : (this.getNodeParameter('operation', itemIndex) as UsageOperation);
+      period =
+        parameterMode === 'aiDynamic'
+          ? resolveUsagePeriod(this.getNodeParameter('aiPeriod', itemIndex, '7d'))
+          : (this.getNodeParameter('period', itemIndex, '7d') as string);
+    } catch (error) {
+      throw new NodeOperationError(
+        this.getNode(),
+        error instanceof Error ? error.message : 'Invalid Alephant Usage input',
+        { itemIndex },
+      );
+    }
+
     const data = await runUsageRequest(
       this,
       {
-        operation: this.getNodeParameter('operation', itemIndex) as UsageOperation,
-        period: this.getNodeParameter('period', itemIndex, '7d') as string,
+        operation,
+        period,
         limit: this.getNodeParameter('limit', itemIndex, 50) as number,
         offset: this.getNodeParameter('offset', itemIndex, 0) as number,
         requestLogId: this.getNodeParameter('requestLogId', itemIndex, '') as string,

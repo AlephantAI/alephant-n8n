@@ -13,6 +13,11 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
   },
-  "include": ["index.ts", "credentials/**/*.ts", "nodes/**/*.ts", "shared/**/*.ts"],
-  "exclude": ["dist", "node_modules", "test", "nodes/AlephantAnalyticsAi/**/*.ts"]
+  "include": [
+    "index.ts",
+    "credentials/AlephantVirtualKeyApi.credentials.ts",
+    "nodes/Alephant/**/*.ts",
+    "shared/**/*.ts"
+  ],
+  "exclude": ["dist", "node_modules", "test"]
 }

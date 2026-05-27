@@ -12,14 +12,7 @@ Open the package settings on npm:
 https://www.npmjs.com/package/@alephantai/n8n-nodes-alephant
 ```
 
-For split packages, use the matching npm package settings page:
-
-```text
-https://www.npmjs.com/package/@alephantai/n8n-nodes-alephant-ai
-https://www.npmjs.com/package/@alephantai/n8n-nodes-alephant-analytics
-https://www.npmjs.com/package/@alephantai/n8n-nodes-alephant-analytics-ai
-https://www.npmjs.com/package/@alephantai/n8n-nodes-alephant-management
-```
+This package should be submitted as the single Alephant package. Do not submit the older split packages for n8n Cloud verification.
 
 In `Settings > Trusted Publisher`, configure:
 
@@ -40,11 +33,7 @@ The release workflow is `.github/workflows/publish.yml`.
 It runs on version tags:
 
 ```text
-v0.1.4
-alephant-ai-v0.1.0
-alephant-analytics-v0.1.0
-alephant-analytics-ai-v0.1.0
-alephant-management-v0.1.0
+v0.1.12
 ```
 
 The workflow must have:
@@ -60,10 +49,8 @@ The workflow uses Node 24 and updates npm to the latest version because npm Trus
 The publish step should be:
 
 ```bash
-npm publish --access public
+npm publish --access public --provenance
 ```
-
-Do not add `--provenance` manually when using Trusted Publishing.
 
 ## Release checklist
 
@@ -93,17 +80,6 @@ git push
 git push --tags
 ```
 
-For split packages, update the package version in that package directory, commit it, then push the matching tag:
-
-```bash
-npm --prefix packages/alephant-analytics-ai version patch --no-git-tag-version
-git add packages/alephant-analytics-ai/package.json
-git commit -m "release alephant analytics ai package"
-git tag alephant-analytics-ai-v$(node -p "require('./packages/alephant-analytics-ai/package.json').version")
-git push
-git push --tags
-```
-
 GitHub Actions will publish the package when the tag is pushed.
 
 ## Verify the release
@@ -111,7 +87,8 @@ GitHub Actions will publish the package when the tag is pushed.
 In GitHub Actions, the `Publish` workflow should show:
 
 ```text
-npm publish
+npm publish --access public --provenance
+npx --yes @n8n/scan-community-package @alephantai/n8n-nodes-alephant@<version>
 ```
 
 After it succeeds, check npm:
@@ -132,12 +109,6 @@ Use:
 @alephantai/n8n-nodes-alephant
 ```
 
-For the analytics AI tool package, install:
-
-```text
-@alephantai/n8n-nodes-alephant-analytics-ai
-```
-
 For n8n Cloud listing, submit the package through the n8n Creator Portal after the npm release has provenance from GitHub Actions.
 
 ## Submit to n8n community listing
@@ -154,12 +125,6 @@ npm --cache /private/tmp/npm-cache-codex pack --dry-run
 npx @n8n/scan-community-package @alephantai/n8n-nodes-alephant
 ```
 
-For the analytics AI tool package:
-
-```bash
-npx @n8n/scan-community-package @alephantai/n8n-nodes-alephant-analytics-ai
-```
-
 The scanner downloads the currently published npm package. If you fixed a scanner issue locally, publish a new patch version first, then rerun the scanner against the package name.
 
 Submit these package details:
@@ -170,36 +135,16 @@ Repository: https://github.com/AlephantAI/alephant-n8n
 npm package: https://www.npmjs.com/package/@alephantai/n8n-nodes-alephant
 ```
 
-Use the following node descriptions in the Creator Portal. Keep each description attached to its matching node instead of combining all three into one field.
+Use the following node description in the Creator Portal.
 
-### Alephant Cost Control description
+### Alephant description
 
 ```text
-Route AI requests from n8n through Alephant AI Gateway.
+Route AI requests through Alephant AI Gateway and query Alephant analytics from one n8n action node.
 
-This node sends chat completion requests through Alephant AI Gateway and helps teams track token usage, enforce budget limits, prevent runaway agent spend, and attribute AI costs by key, team, model, provider, or session.
+The AI Gateway resource sends chat completion requests through Alephant AI Gateway to track token usage, enforce budget limits, and attribute AI costs. The Analytics resource retrieves usage summaries, budget status, daily costs, cost by model, recent requests, and request log details.
 
 Credential required: Alephant Virtual Key.
-```
-
-### Alephant AI Analytics description
-
-```text
-Analyze AI usage, cost, budgets, and request traces from n8n.
-
-This node retrieves AI usage summaries, budget status, daily costs, cost by model, recent requests, and request log details. It helps teams understand spend patterns, diagnose issues, and build reporting or alerting workflows for AI operations.
-
-Credential required: Alephant Virtual Key.
-```
-
-### Alephant Node description
-
-```text
-Automate Alephant workspace operations from n8n.
-
-This node connects n8n workflows to Alephant workspace APIs for listing models, managing agents and Virtual Keys, and reading workspace-level analytics. It helps teams integrate governed, cost-aware AI operations into automation flows.
-
-Credential required: Alephant Manager credential with a Personal Access Token and Workspace ID.
 ```
 
 ## Troubleshooting
@@ -235,7 +180,6 @@ Check:
 3. The workflow has `id-token: write`.
 4. The workflow updates npm to a recent version before publishing.
 5. The package name matches the npm package where Trusted Publisher was configured.
-6. For a new split package, configure Trusted Publisher on that exact package name, for example `@alephantai/n8n-nodes-alephant-analytics-ai`.
 
 If all of those are correct, publish a new patch version. Do not retry the same version after a successful npm publish.
 
