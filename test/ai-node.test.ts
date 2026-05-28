@@ -1,11 +1,12 @@
 import {
-  AlephantAi,
+  aiGatewayProperties,
   buildChatCompletionBody,
   parseMessagesInput,
-} from '../nodes/AlephantAi/AlephantAi.node';
+} from '../shared/ai';
 import type { IExecuteFunctions } from 'n8n-workflow';
+import { Alephant } from '../nodes/Alephant/Alephant.node';
 
-describe('Alephant AI node', () => {
+describe('Alephant AI Gateway resource', () => {
   it('builds a prompt-mode chat completion body', () => {
     const body = buildChatCompletionBody({
       model: 'gpt-4o-mini',
@@ -65,9 +66,8 @@ describe('Alephant AI node', () => {
   });
 
   it('does not configure temperature and max tokens by default', () => {
-    const node = new AlephantAi();
-    const temperature = node.description.properties.find(({ name }) => name === 'temperature');
-    const maxTokens = node.description.properties.find(({ name }) => name === 'maxTokens');
+    const temperature = aiGatewayProperties.find(({ name }) => name === 'temperature');
+    const maxTokens = aiGatewayProperties.find(({ name }) => name === 'maxTokens');
 
     expect(temperature?.default).toBeUndefined();
     expect(maxTokens?.default).toBeUndefined();
@@ -126,7 +126,7 @@ describe('Alephant AI node', () => {
       choices: [{ message: { content: 'Hello' }, finish_reason: 'stop' }],
       usage: { total_tokens: 3 },
     });
-    const node = new AlephantAi();
+    const node = new Alephant();
     const ctx = {
       getInputData: jest.fn().mockReturnValue([
         { json: { workspaceId: 'input-workspace-id' } },
@@ -137,7 +137,7 @@ describe('Alephant AI node', () => {
       }),
       getNode: jest.fn().mockReturnValue({
         name: 'Alephant AI',
-        type: 'alephantAi',
+        type: 'alephant',
         typeVersion: 1,
         position: [0, 0],
         parameters: {},
@@ -146,6 +146,7 @@ describe('Alephant AI node', () => {
         const [name, , fallback] = args;
         const values: Record<string, unknown> = {
           inputMode: 'prompt',
+          resource: 'aiGateway',
           model: 'gpt-4o-mini',
           prompt: 'Hi',
           responseFormat: 'text',

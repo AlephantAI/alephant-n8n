@@ -1,107 +1,23 @@
-import type { IExecuteFunctions, ISupplyDataFunctions } from 'n8n-workflow';
-import { NodeConnectionTypes } from 'n8n-workflow';
-import { AlephantAnalyticsAi } from '../nodes/AlephantAnalyticsAi/AlephantAnalyticsAi.node';
-import { AlephantUsage, buildUsageRequest } from '../nodes/AlephantUsage/AlephantUsage.node';
+import type { IExecuteFunctions } from 'n8n-workflow';
+import { Alephant } from '../nodes/Alephant/Alephant.node';
+import { buildUsageRequest } from '../shared/usage';
 
 function getNodeProperty(name: string) {
-  return new AlephantUsage().description.properties.find((property) => property.name === name);
+  return new Alephant().description.properties.find(
+    (property) =>
+      property.name === name && property.displayOptions?.show?.resource?.includes('analytics'),
+  );
 }
 
-function getAnalyticsAiNodeProperty(name: string) {
-  return new AlephantAnalyticsAi().description.properties.find((property) => property.name === name);
-}
-
-describe('Alephant Usage node', () => {
+describe('Alephant Analytics resource', () => {
   it('can be used as an AI Agent tool', () => {
-    expect(new AlephantUsage().description.usableAsTool).toBe(true);
+    expect(new Alephant().description.usableAsTool).toBe(true);
   });
 
   it('uses n8n title case for cost by model operation label', () => {
     expect(getNodeProperty('operation')).toMatchObject({
       options: expect.arrayContaining([{ name: 'Cost by Model', value: 'costByModel' }]),
     });
-  });
-
-  it('exposes an AI tool variant for Alephant analytics', () => {
-    expect(new AlephantAnalyticsAi().description).toMatchObject({
-      displayName: 'Alephant-Analytics-AI',
-      name: 'alephantAnalyticsAi',
-      defaults: { name: 'Alephant-Analytics-AI' },
-      inputs: [],
-      outputs: [NodeConnectionTypes.AiTool],
-      usableAsTool: true,
-    });
-  });
-
-  it('lets AI fill operation and period in the AI tool variant', () => {
-    expect(getAnalyticsAiNodeProperty('operation')).toMatchObject({
-      options: expect.arrayContaining([{ name: 'filled by AI', value: 'usageSummary' }]),
-    });
-    expect(getAnalyticsAiNodeProperty('period')).toMatchObject({
-      options: expect.arrayContaining([{ name: 'filled by AI', value: '7d' }]),
-    });
-  });
-
-  it('supplies a structured AI tool with an object input schema', async () => {
-    const httpRequest = jest.fn().mockResolvedValue({ total_cost: 12.34 });
-    const node = new AlephantAnalyticsAi();
-    const ctx = {
-      getCredentials: jest.fn().mockResolvedValue({
-        virtualKey: 'vk_test',
-        saasBaseUrl: 'https://saas.example/',
-        analyticsBaseUrl: 'https://analytics.example/',
-      }),
-      getNode: jest.fn().mockReturnValue({ name: 'Alephant-Analytics-AI' }),
-      helpers: { httpRequest },
-    } as unknown as ISupplyDataFunctions;
-
-    const supplyData = await node.supplyData.call(ctx, 0);
-    const tool = supplyData.response as {
-      name: string;
-      schema: { type?: string };
-      invoke(input: unknown): Promise<string>;
-    };
-
-    expect(tool.schema).toMatchObject({ type: 'object' });
-    await expect(tool.invoke({ operation: 'usageSummary', period: '7d' })).resolves.toBe(
-      JSON.stringify({ total_cost: 12.34 }),
-    );
-    expect(httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://saas.example/api/v1/cockpit/usage-summary',
-      json: true,
-      headers: {
-        Authorization: 'Bearer vk_test',
-        'Content-Type': 'application/json',
-      },
-      qs: { period: '7d' },
-      body: undefined,
-    });
-  });
-
-  it('uses default AI tool input when partial execution passes an empty object', async () => {
-    const httpRequest = jest.fn().mockResolvedValue({ total_cost: 12.34 });
-    const node = new AlephantAnalyticsAi();
-    const ctx = {
-      getCredentials: jest.fn().mockResolvedValue({
-        virtualKey: 'vk_test',
-        saasBaseUrl: 'https://saas.example/',
-        analyticsBaseUrl: 'https://analytics.example/',
-      }),
-      getNode: jest.fn().mockReturnValue({ name: 'Alephant-Analytics-AI' }),
-      helpers: { httpRequest },
-    } as unknown as ISupplyDataFunctions;
-    const tool = (await node.supplyData.call(ctx, 0)).response as {
-      invoke(input: unknown): Promise<string>;
-    };
-
-    await expect(tool.invoke({})).resolves.toBe(JSON.stringify({ total_cost: 12.34 }));
-    expect(httpRequest).toHaveBeenCalledWith(
-      expect.objectContaining({
-        url: 'https://saas.example/api/v1/cockpit/usage-summary',
-        qs: { period: '7d' },
-      }),
-    );
   });
 
   it.each([
@@ -184,7 +100,7 @@ describe('Alephant Usage node', () => {
 
   it('executes cockpit usage requests against SaaS base URL with virtual key credentials', async () => {
     const httpRequest = jest.fn().mockResolvedValue({ total_cost: 12.34 });
-    const node = new AlephantUsage();
+    const node = new Alephant();
     const ctx = {
       getInputData: jest.fn().mockReturnValue([{ json: { input: true } }]),
       getCredentials: jest.fn().mockResolvedValue({
@@ -194,6 +110,8 @@ describe('Alephant Usage node', () => {
       }),
       getNodeParameter: jest.fn((name: string) => {
         const values: Record<string, unknown> = {
+          resource: 'analytics',
+          parameterMode: 'fixed',
           operation: 'usageSummary',
           period: '7d',
           limit: 50,
@@ -226,7 +144,7 @@ describe('Alephant Usage node', () => {
     const httpRequest = jest.fn().mockResolvedValue({
       data: { row: { request_id: '79a583b6-1fe1-41bf-a53b-c23b469329b1', cost: 0.000012 } },
     });
-    const node = new AlephantUsage();
+    const node = new Alephant();
     const ctx = {
       getInputData: jest.fn().mockReturnValue([{ json: { input: true } }]),
       getCredentials: jest.fn().mockResolvedValue({
@@ -237,6 +155,8 @@ describe('Alephant Usage node', () => {
       }),
       getNodeParameter: jest.fn((name: string) => {
         const values: Record<string, unknown> = {
+          resource: 'analytics',
+          parameterMode: 'fixed',
           operation: 'requestLogDetail',
           requestLogId: '79a583b6-1fe1-41bf-a53b-c23b469329b1',
           period: '7d',
@@ -280,7 +200,7 @@ describe('Alephant Usage node', () => {
     const httpRequest = jest.fn().mockResolvedValue({
       data: { row: { request_id: '79a583b6-1fe1-41bf-a53b-c23b469329b1', cost: 0.000012 } },
     });
-    const node = new AlephantUsage();
+    const node = new Alephant();
     const ctx = {
       getInputData: jest.fn().mockReturnValue([{ json: { input: true } }]),
       getCredentials: jest.fn().mockResolvedValue({
@@ -289,9 +209,11 @@ describe('Alephant Usage node', () => {
         saasBaseUrl: 'https://saas.example/',
         analyticsBaseUrl: 'https://analytics.example/',
       }),
-      getNode: jest.fn().mockReturnValue({ name: 'Alephant Usage' }),
+      getNode: jest.fn().mockReturnValue({ name: 'Alephant' }),
       getNodeParameter: jest.fn((name: string) => {
         const values: Record<string, unknown> = {
+          resource: 'analytics',
+          parameterMode: 'fixed',
           operation: 'requestLogDetail',
           requestLogId: '79a583b6-1fe1-41bf-a53b-c23b469329b1',
           workspaceId: 'node-workspace-id',
@@ -331,7 +253,7 @@ describe('Alephant Usage node', () => {
     const httpRequest = jest.fn().mockResolvedValue({
       data: { row: { request_id: '79a583b6-1fe1-41bf-a53b-c23b469329b1', cost: 0.000012 } },
     });
-    const node = new AlephantUsage();
+    const node = new Alephant();
     const ctx = {
       getInputData: jest.fn().mockReturnValue([
         { json: { workspaceId: 'input-workspace-id', input: true } },
@@ -342,9 +264,11 @@ describe('Alephant Usage node', () => {
         saasBaseUrl: 'https://saas.example/',
         analyticsBaseUrl: 'https://analytics.example/',
       }),
-      getNode: jest.fn().mockReturnValue({ name: 'Alephant Usage' }),
+      getNode: jest.fn().mockReturnValue({ name: 'Alephant' }),
       getNodeParameter: jest.fn((name: string) => {
         const values: Record<string, unknown> = {
+          resource: 'analytics',
+          parameterMode: 'fixed',
           operation: 'requestLogDetail',
           requestLogId: '79a583b6-1fe1-41bf-a53b-c23b469329b1',
           workspaceId: '',
@@ -382,7 +306,7 @@ describe('Alephant Usage node', () => {
       .mockResolvedValueOnce({
         data: { row: { request_id: '79a583b6-1fe1-41bf-a53b-c23b469329b1', cost: 0.000012 } },
       });
-    const node = new AlephantUsage();
+    const node = new Alephant();
     const ctx = {
       getInputData: jest.fn().mockReturnValue([{ json: { input: true } }]),
       getCredentials: jest.fn().mockResolvedValue({
@@ -391,9 +315,11 @@ describe('Alephant Usage node', () => {
         saasBaseUrl: 'https://saas.example/',
         analyticsBaseUrl: 'https://analytics.example/',
       }),
-      getNode: jest.fn().mockReturnValue({ name: 'Alephant Usage' }),
+      getNode: jest.fn().mockReturnValue({ name: 'Alephant' }),
       getNodeParameter: jest.fn((name: string) => {
         const values: Record<string, unknown> = {
+          resource: 'analytics',
+          parameterMode: 'fixed',
           operation: 'requestLogDetail',
           requestLogId: '79a583b6-1fe1-41bf-a53b-c23b469329b1',
           workspaceId: '',
@@ -455,7 +381,7 @@ describe('Alephant Usage node', () => {
       .mockResolvedValueOnce({
         data: { row: { request_id: '79a583b6-1fe1-41bf-a53b-c23b469329b1', cost: 0.000012 } },
       });
-    const node = new AlephantUsage();
+    const node = new Alephant();
     const ctx = {
       getInputData: jest.fn().mockReturnValue([{ json: { input: true } }]),
       getCredentials: jest.fn().mockResolvedValue({
@@ -464,9 +390,11 @@ describe('Alephant Usage node', () => {
         saasBaseUrl: 'https://saas.example/',
         analyticsBaseUrl: 'https://analytics.example/',
       }),
-      getNode: jest.fn().mockReturnValue({ name: 'Alephant Usage' }),
+      getNode: jest.fn().mockReturnValue({ name: 'Alephant' }),
       getNodeParameter: jest.fn((name: string, _index: number, fallback?: unknown) => {
         const values: Record<string, unknown> = {
+          resource: 'analytics',
+          parameterMode: 'fixed',
           operation: 'requestLogDetail',
           requestLogId: '79a583b6-1fe1-41bf-a53b-c23b469329b1',
           workspaceId: '',
