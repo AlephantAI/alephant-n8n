@@ -154,6 +154,10 @@ export class Alephant implements INodeType {
       light: 'file:alephant.light.svg',
       dark: 'file:alephant.dark.svg',
     },
+    iconUrl: {
+      light: 'https://raw.githubusercontent.com/AlephantAI/alephant-n8n/main/nodes/Alephant/alephant.light.svg',
+      dark: 'https://raw.githubusercontent.com/AlephantAI/alephant-n8n/main/nodes/Alephant/alephant.dark.svg',
+    },
     group: ['transform'],
     version: 1,
     subtitle:
