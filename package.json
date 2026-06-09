@@ -1,6 +1,6 @@
 {
   "name": "@alephantai/n8n-nodes-alephant",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "n8n node for Alephant AI Gateway cost control and analytics",
   "license": "MIT",
   "homepage": "https://alephant.io",
